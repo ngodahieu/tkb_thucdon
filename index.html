@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thời Khóa Biểu Thực Đơn Tuần</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 30px 15px;
+    font-family: Arial, sans-serif;
+    background: #f0f7f4;
+    color: #253b35;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    color: #16845c;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #667b73;
+    margin-bottom: 30px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 6px 25px #163d2815;
+}
+
+table {
+    width: 100%;
+    min-width: 750px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 16px;
+    border: 1px solid #e2ebe5;
+    text-align: center;
+}
+
+thead th {
+    background: #16845c;
+    color: white;
+    font-size: 16px;
+}
+
+.day {
+    font-weight: bold;
+    background: #e6f5ec;
+    color: #16704c;
+    width: 125px;
+}
+
+td[contenteditable="true"] {
+    cursor: text;
+    line-height: 1.6;
+    min-width: 170px;
+    white-space: pre-wrap;
+    transition: background 0.2s;
+}
+
+td[contenteditable="true"]:hover {
+    background: #f3faf5;
+}
+
+td[contenteditable="true"]:focus {
+    background: #fffce8;
+    outline: 2px solid #e7bd4c;
+    outline-offset: -2px;
+}
+
+tr:nth-child(even) td:not(.day) {
+    background: #fafcfb;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+button {
+    border: none;
+    padding: 12px 22px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.print {
+    background: #16845c;
+    color: white;
+}
+
+.reset {
+    background: #e6ece9;
+    color: #34483e;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.note {
+    text-align: center;
+    color: #78877e;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .actions, .note {
+        display: none;
+    }
+
+    .table-wrapper {
+        box-shadow: none;
+    }
+
+    @page {
+        size: A4 landscape;
+        margin: 12mm;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🍽️ THỜI KHÓA BIỂU THỰC ĐƠN</h1>
+    <p class="subtitle">
+        Thực đơn dinh dưỡng từ Thứ Hai đến Chủ Nhật
+    </p>
+
+    <div class="table-wrapper">
+        <table id="menuTable">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>🌅 Bữa sáng</th>
+                    <th>☀️ Bữa trưa</th>
+                    <th>🌙 Bữa tối</th>
+                </tr>
+            </thead>
+
+            <tbody id="menuBody"></tbody>
+        </table>
+    </div>
+
+    <div class="actions">
+        <button class="print" onclick="window.print()">
+            🖨️ In thực đơn
+        </button>
+
+        <button class="reset" onclick="resetMenu()">
+            🔄 Đặt lại thực đơn
+        </button>
+    </div>
+
+    <p class="note">
+        Nhấn vào từng ô để thay đổi món ăn.
+        Nội dung được lưu tự động trên trình duyệt.
+    </p>
+</div>
+
+<script>
+const days = [
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
+    "Chủ Nhật"
+];
+
+const defaultMenu = [
+    ["Bánh mì trứng + Sữa",
+     "Cơm + Thịt kho + Canh rau",
+     "Cơm + Cá hấp + Rau luộc"],
+
+    ["Phở bò",
+     "Cơm + Gà luộc + Canh bí",
+     "Bún thịt nướng"],
+
+    ["Bún bò",
+     "Cơm + Cá kho + Canh cải",
+     "Cháo gà + Rau xanh"],
+
+    ["Bánh cuốn + Sữa",
+     "Cơm + Thịt xào + Canh chua",
+     "Cơm + Trứng chiên + Rau"],
+
+    ["Xôi gà",
+     "Cơm + Tôm rim + Canh bí đỏ",
+     "Bún cá"],
+
+    ["Hủ tiếu",
+     "Cơm + Sườn nướng + Salad",
+     "Lẩu rau củ + Thịt bò"],
+
+    ["Bánh mì ốp la",
+     "Cơm + Gà nướng + Canh rau",
+     "Miến gà + Trái cây"]
+];
+
+const storageKey = "weeklyFoodMenu";
+
+function loadMenu() {
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(storageKey)
+        );
+
+        if (
+            Array.isArray(saved) &&
+            saved.length === 7 &&
+            saved.every(row =>
+                Array.isArray(row) &&
+                row.length === 3 &&
+                row.every(item => typeof item === "string")
+            )
+        ) {
+            return saved;
+        }
+    } catch (error) {
+        console.warn("Không thể đọc thực đơn đã lưu.");
+    }
+
+    return defaultMenu.map(row => [...row]);
+}
+
+function renderMenu() {
+    const tbody = document.getElementById("menuBody");
+    const menu = loadMenu();
+
+    tbody.innerHTML = "";
+
+    days.forEach((day, i) => {
+        const tr = document.createElement("tr");
+
+        const dayCell = document.createElement("td");
+        dayCell.className = "day";
+        dayCell.textContent = day;
+        tr.appendChild(dayCell);
+
+        menu[i].forEach((food, j) => {
+            const td = document.createElement("td");
+
+            td.contentEditable = "true";
+            td.textContent = food;
+            td.setAttribute(
+                "aria-label",
+                `${day}, bữa ${["sáng", "trưa", "tối"][j]}`
+            );
+
+            td.addEventListener("input", saveMenu);
+
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+function saveMenu() {
+    const rows = document.querySelectorAll(
+        "#menuBody tr"
+    );
+
+    const menu = Array.from(rows, row => {
+        return Array.from(
+            row.querySelectorAll(
+                'td[contenteditable="true"]'
+            ),
+            cell => cell.innerText
+        );
+    });
+
+    localStorage.setItem(
+        storageKey,
+        JSON.stringify(menu)
+    );
+}
+
+function resetMenu() {
+    if (confirm("Bạn muốn đặt lại thực đơn ban đầu?")) {
+        localStorage.removeItem(storageKey);
+        renderMenu();
+    }
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
