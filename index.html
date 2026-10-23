@@ -1,322 +1,543 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thời Khóa Biểu Thực Đơn Tuần</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 30px 15px;
-    font-family: Arial, sans-serif;
-    background: #f0f7f4;
-    color: #253b35;
-}
-
-.container {
-    max-width: 1200px;
-    margin: auto;
-}
-
-h1 {
-    text-align: center;
-    color: #16845c;
-    margin-bottom: 8px;
-}
-
-.subtitle {
-    text-align: center;
-    color: #667b73;
-    margin-bottom: 30px;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 6px 25px #163d2815;
-}
-
-table {
-    width: 100%;
-    min-width: 750px;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 16px;
-    border: 1px solid #e2ebe5;
-    text-align: center;
-}
-
-thead th {
-    background: #16845c;
-    color: white;
-    font-size: 16px;
-}
-
-.day {
-    font-weight: bold;
-    background: #e6f5ec;
-    color: #16704c;
-    width: 125px;
-}
-
-td[contenteditable="true"] {
-    cursor: text;
-    line-height: 1.6;
-    min-width: 170px;
-    white-space: pre-wrap;
-    transition: background 0.2s;
-}
-
-td[contenteditable="true"]:hover {
-    background: #f3faf5;
-}
-
-td[contenteditable="true"]:focus {
-    background: #fffce8;
-    outline: 2px solid #e7bd4c;
-    outline-offset: -2px;
-}
-
-tr:nth-child(even) td:not(.day) {
-    background: #fafcfb;
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 25px;
-}
-
-button {
-    border: none;
-    padding: 12px 22px;
-    border-radius: 9px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-}
-
-.print {
-    background: #16845c;
-    color: white;
-}
-
-.reset {
-    background: #e6ece9;
-    color: #34483e;
-}
-
-button:hover {
-    opacity: 0.85;
-}
-
-.note {
-    text-align: center;
-    color: #78877e;
-    margin-top: 20px;
-    font-size: 13px;
-}
-
-@media print {
     body {
-        background: white;
-        padding: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f7f4;
+        color: #253b35;
+    }
+    
+    .editable-cell {
+        min-height: 70px;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .editable-cell:hover {
+        background-color: #f3faf5;
     }
 
-    .actions, .note {
-        display: none;
+    .editable-cell:focus {
+        background-color: #fffce8;
+        outline: 2px solid #e7bd4c;
+        outline-offset: -2px;
     }
 
-    .table-wrapper {
-        box-shadow: none;
+    /* Print styling rules */
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        body {
+            background-color: white !important;
+            padding: 0 !important;
+        }
+        .container-print {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .table-print {
+            border: 1px solid #ccc !important;
+            box-shadow: none !important;
+        }
+        td, th {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
     }
-
-    @page {
-        size: A4 landscape;
-        margin: 12mm;
-    }
-}
 </style>
 </head>
 
-<body>
+<body class="p-3 sm:p-6 min-h-screen">
 
-<div class="container">
-    <h1>🍽️ THỜI KHÓA BIỂU THỰC ĐƠN</h1>
-    <p class="subtitle">
-        Thực đơn dinh dưỡng từ Thứ Hai đến Chủ Nhật
-    </p>
+<div class="max-w-6xl mx-auto container-print">
+    <!-- Header Section -->
+    <header class="text-center mb-6">
+        <div class="flex items-center justify-center gap-3 mb-2">
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-[#16845c] tracking-tight">
+                🍽️ THỜI KHÓA BIỂU THỰC ĐƠN
+            </h1>
+        </div>
+        <p class="text-sm sm:text-base text-[#667b73] font-medium">
+            Thực đơn dinh dưỡng từ Thứ Hai đến Chủ Nhật (Đồng bộ thời gian thực)
+        </p>
 
-    <div class="table-wrapper">
-        <table id="menuTable">
+        <!-- Connection / Sync Status Indicator -->
+        <div class="no-print mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shadow-sm border border-emerald-200" id="syncStatus">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="statusDot"></span>
+            <span id="statusText">Đang kết nối cơ sở dữ liệu...</span>
+        </div>
+    </header>
+
+    <!-- Toolbar Actions -->
+    <div class="no-print flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl shadow-sm border border-[#e2ebe5] mb-6">
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Random Menu Button -->
+            <button onclick="randomizeEntireMenu()" class="flex items-center gap-2 bg-[#16845c] hover:bg-[#126b4a] text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm active:scale-95">
+                <i class="fa-solid font-bold fa-dice"></i> 🎲 Random Thực Đơn Tuần
+            </button>
+
+            <!-- Manage Fixed Dishes Modal Toggle Button -->
+            <button onclick="toggleDishPoolModal(true)" class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-[#16845c] border border-emerald-300 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95">
+                <i class="fa-solid fa-list-check"></i> Quản Lý Món Cố Định
+            </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Print Button -->
+            <button onclick="window.print()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95">
+                <i class="fa-solid fa-print"></i> In thực đơn
+            </button>
+
+            <!-- Reset Button -->
+            <button onclick="confirmResetMenu()" class="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95">
+                <i class="fa-solid fa-rotate-left"></i> Đặt lại
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Menu Table Wrapper -->
+    <div class="overflow-x-auto bg-white rounded-2xl shadow-md border border-[#e2ebe5] table-print">
+        <table class="w-full min-w-[750px] border-collapse text-center">
             <thead>
-                <tr>
-                    <th>Ngày</th>
-                    <th>🌅 Bữa sáng</th>
-                    <th>☀️ Bữa trưa</th>
-                    <th>🌙 Bữa tối</th>
+                <tr class="bg-[#16845c] text-white text-base font-semibold">
+                    <th class="py-4 px-3 w-32 border-b border-[#126b4a]">Ngày</th>
+                    <th class="py-4 px-3 border-b border-[#126b4a]">🌅 Bữa Sáng</th>
+                    <th class="py-4 px-3 border-b border-[#126b4a]">☀️ Bữa Trưa</th>
+                    <th class="py-4 px-3 border-b border-[#126b4a]">🌙 Bữa Tối</th>
                 </tr>
             </thead>
-
-            <tbody id="menuBody"></tbody>
+            <tbody id="menuBody" class="divide-y divide-[#e2ebe5] text-sm">
+                <!-- Dynamic rows populated via JS -->
+            </tbody>
         </table>
     </div>
 
-    <div class="actions">
-        <button class="print" onclick="window.print()">
-            🖨️ In thực đơn
-        </button>
-
-        <button class="reset" onclick="resetMenu()">
-            🔄 Đặt lại thực đơn
-        </button>
-    </div>
-
-    <p class="note">
-        Nhấn vào từng ô để thay đổi món ăn.
-        Nội dung được lưu tự động trên trình duyệt.
+    <!-- Footnote Notice -->
+    <p class="no-print text-center text-xs sm:text-sm text-[#78877e] mt-4">
+        💡 <span class="font-medium">Mẹo:</span> Bạn có thể bấm trực tiếp vào bất kỳ ô nào để chỉnh sửa. Tất cả mọi người cùng truy cập sẽ thấy ngay thay đổi của bạn!
     </p>
 </div>
 
-<script>
-const days = [
-    "Thứ Hai",
-    "Thứ Ba",
-    "Thứ Tư",
-    "Thứ Năm",
-    "Thứ Sáu",
-    "Thứ Bảy",
-    "Chủ Nhật"
-];
+<!-- MODAL: Managed Preset Dishes Pool -->
+<div id="dishPoolModal" class="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 bg-[#16845c] text-white flex justify-between items-center">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+                <i class="fa-solid fa-utensils"></i> Danh Sách Món Ăn Cố Định (Kho Random)
+            </h3>
+            <button onclick="toggleDishPoolModal(false)" class="text-emerald-100 hover:text-white text-xl font-bold p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
-const defaultMenu = [
-    ["Bánh mì trứng + Sữa",
-     "Cơm + Thịt kho + Canh rau",
-     "Cơm + Cá hấp + Rau luộc"],
+        <!-- Modal Meal Tabs -->
+        <div class="flex border-b border-slate-200 bg-slate-50 px-6 pt-3 gap-2">
+            <button id="tab-0" onclick="switchPoolTab(0)" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg transition-all border-b-2 border-emerald-600 text-[#16845c] bg-white shadow-sm">
+                🌅 Bữa Sáng
+            </button>
+            <button id="tab-1" onclick="switchPoolTab(1)" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg transition-all text-slate-500 hover:text-slate-800">
+                ☀️ Bữa Trưa
+            </button>
+            <button id="tab-2" onclick="switchPoolTab(2)" class="tab-btn px-4 py-2 font-medium text-sm rounded-t-lg transition-all text-slate-500 hover:text-slate-800">
+                🌙 Bữa Tối
+            </button>
+        </div>
 
-    ["Phở bò",
-     "Cơm + Gà luộc + Canh bí",
-     "Bún thịt nướng"],
+        <!-- Modal Body Content -->
+        <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <!-- Add Dish Input Form -->
+            <form onsubmit="handleAddDish(event)" class="flex gap-2">
+                <input type="text" id="newDishInput" placeholder="Nhập tên món ăn mới..." class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#16845c] focus:outline-none text-sm" required>
+                <button type="submit" class="bg-[#16845c] hover:bg-[#126b4a] text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Thêm Món
+                </button>
+            </form>
 
-    ["Bún bò",
-     "Cơm + Cá kho + Canh cải",
-     "Cháo gà + Rau xanh"],
+            <p class="text-xs text-slate-500">
+                Danh sách các món cố định bên dưới sẽ được sử dụng làm kho dữ liệu khi bấm nút <span class="font-semibold text-emerald-700">🎲 Random Thực Đơn Tuần</span>.
+            </p>
 
-    ["Bánh cuốn + Sữa",
-     "Cơm + Thịt xào + Canh chua",
-     "Cơm + Trứng chiên + Rau"],
+            <!-- Dish List Items -->
+            <div id="dishListContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <!-- Dynamically generated dish tags -->
+            </div>
+        </div>
 
-    ["Xôi gà",
-     "Cơm + Tôm rim + Canh bí đỏ",
-     "Bún cá"],
+        <!-- Modal Footer -->
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+            <button onclick="toggleDishPoolModal(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-lg font-semibold text-sm transition-all">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
 
-    ["Hủ tiếu",
-     "Cơm + Sườn nướng + Salad",
-     "Lẩu rau củ + Thịt bò"],
+<!-- Custom Confirmation Modal (Replaces browser alert) -->
+<div id="confirmModal" class="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100 text-center space-y-4">
+        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h4 class="text-lg font-bold text-slate-800" id="confirmTitle">Xác nhận hành động</h4>
+        <p class="text-sm text-slate-600" id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này không?</p>
+        <div class="flex justify-center gap-3 pt-2">
+            <button onclick="closeConfirmModal(false)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-semibold text-sm transition-all">Hủy bỏ</button>
+            <button id="confirmOkBtn" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold text-sm transition-all">Đồng ý</button>
+        </div>
+    </div>
+</div>
 
-    ["Bánh mì ốp la",
-     "Cơm + Gà nướng + Canh rau",
-     "Miến gà + Trái cây"]
-];
+<!-- Firebase SDK Imports (v11 Modular) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const storageKey = "weeklyFoodMenu";
+    // Global variables & defaults
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'weekly-menu-app';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        apiKey: "demo-api-key",
+        authDomain: "demo-app.firebaseapp.com",
+        projectId: "demo-app",
+        storageBucket: "demo-app.appspot.com",
+        messagingSenderId: "000000000000",
+        appId: "1:000000000000:web:000000000000"
+    };
 
-function loadMenu() {
-    try {
-        const saved = JSON.parse(
-            localStorage.getItem(storageKey)
-        );
+    const days = [
+        "Thứ Hai",
+        "Thứ Ba",
+        "Thứ Tư",
+        "Thứ Năm",
+        "Thứ Sáu",
+        "Thứ Bảy",
+        "Chủ Nhật"
+    ];
 
-        if (
-            Array.isArray(saved) &&
-            saved.length === 7 &&
-            saved.every(row =>
-                Array.isArray(row) &&
-                row.length === 3 &&
-                row.every(item => typeof item === "string")
-            )
-        ) {
-            return saved;
+    const defaultMenu = [
+        ["Bánh mì trứng + Sữa", "Cơm + Thịt kho + Canh rau", "Cơm + Cá hấp + Rau luộc"],
+        ["Phở bò", "Cơm + Gà luộc + Canh bí", "Bún thịt nướng"],
+        ["Bún bò", "Cơm + Cá kho + Canh cải", "Cháo gà + Rau xanh"],
+        ["Bánh cuốn + Sữa", "Cơm + Thịt xào + Canh chua", "Cơm + Trứng chiên + Rau"],
+        ["Xôi gà", "Cơm + Tôm rim + Canh bí đỏ", "Bún cá"],
+        ["Hủ tiếu", "Cơm + Sườn nướng + Salad", "Lẩu rau củ + Thịt bò"],
+        ["Bánh mì ốp la", "Cơm + Gà nướng + Canh rau", "Miến gà + Trái cây"]
+    ];
+
+    // Default dish pools by meal index (0: Breakfast, 1: Lunch, 2: Dinner)
+    let dishPools = [
+        ["Bánh mì trứng + Sữa", "Phở bò", "Bún bò", "Bánh cuốn + Sữa", "Xôi gà", "Hủ tiếu", "Bánh mì ốp la", "Bún riêu", "Mì Quảng", "Bánh mì chảo"],
+        ["Cơm + Thịt kho + Canh rau", "Cơm + Gà luộc + Canh bí", "Cơm + Cá kho + Canh cải", "Cơm + Thịt xào + Canh chua", "Cơm + Tôm rim + Canh bí đỏ", "Cơm + Sườn nướng + Salad", "Cơm + Gà nướng + Canh rau", "Cơm + Bò xào cần tây", "Cơm + Cá chiên mắm"],
+        ["Cơm + Cá hấp + Rau luộc", "Bún thịt nướng", "Cháo gà + Rau xanh", "Cơm + Trứng chiên + Rau", "Bún cá", "Lẩu rau củ + Thịt bò", "Miến gà + Trái cây", "Bún mắm", "Hủ tiếu xào"]
+    ];
+
+    let currentMenu = defaultMenu.map(row => [...row]);
+    let activePoolTab = 0;
+    let db, auth;
+    let menuDocRef, poolDocRef;
+    let isSaving = false;
+
+    // Initialize Firebase Auth & Firestore
+    async function initFirebase() {
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Auth flow according to mandatory rules
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            // Path rule compliance: /artifacts/{appId}/public/data/{collectionName}
+            menuDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'menu_data', 'weekly_plan');
+            poolDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'menu_data', 'dish_pools');
+
+            setupRealtimeListeners();
+            updateStatus(true, "Đồng bộ thời gian thực");
+        } catch (error) {
+            console.error("Firebase init failed, running in fallback mode:", error);
+            updateStatus(false, "Ngoại tuyến (Chế độ lưu nội bộ)");
+            renderMenuTable();
         }
-    } catch (error) {
-        console.warn("Không thể đọc thực đơn đã lưu.");
     }
 
-    return defaultMenu.map(row => [...row]);
-}
+    function updateStatus(isOnline, text) {
+        const dot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        if (dot && statusText) {
+            if (isOnline) {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.innerText = text;
+            } else {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                statusText.innerText = text;
+            }
+        }
+    }
 
-function renderMenu() {
-    const tbody = document.getElementById("menuBody");
-    const menu = loadMenu();
-
-    tbody.innerHTML = "";
-
-    days.forEach((day, i) => {
-        const tr = document.createElement("tr");
-
-        const dayCell = document.createElement("td");
-        dayCell.className = "day";
-        dayCell.textContent = day;
-        tr.appendChild(dayCell);
-
-        menu[i].forEach((food, j) => {
-            const td = document.createElement("td");
-
-            td.contentEditable = "true";
-            td.textContent = food;
-            td.setAttribute(
-                "aria-label",
-                `${day}, bữa ${["sáng", "trưa", "tối"][j]}`
-            );
-
-            td.addEventListener("input", saveMenu);
-
-            tr.appendChild(td);
+    function setupRealtimeListeners() {
+        // Listen to Weekly Menu updates
+        onSnapshot(menuDocRef, (docSnap) => {
+            if (docSnap.exists() && docSnap.data().menu) {
+                currentMenu = docSnap.data().menu;
+            } else {
+                // Initialize default on cloud
+                saveMenuToFirestore(defaultMenu);
+            }
+            if (!isSaving) {
+                renderMenuTable();
+            }
+        }, (error) => {
+            console.error("Menu snapshot error:", error);
+            updateStatus(false, "Lỗi kết nối đồng bộ");
         });
 
-        tbody.appendChild(tr);
-    });
-}
-
-function saveMenu() {
-    const rows = document.querySelectorAll(
-        "#menuBody tr"
-    );
-
-    const menu = Array.from(rows, row => {
-        return Array.from(
-            row.querySelectorAll(
-                'td[contenteditable="true"]'
-            ),
-            cell => cell.innerText
-        );
-    });
-
-    localStorage.setItem(
-        storageKey,
-        JSON.stringify(menu)
-    );
-}
-
-function resetMenu() {
-    if (confirm("Bạn muốn đặt lại thực đơn ban đầu?")) {
-        localStorage.removeItem(storageKey);
-        renderMenu();
+        // Listen to Dish Pools updates
+        onSnapshot(poolDocRef, (docSnap) => {
+            if (docSnap.exists() && docSnap.data().pools) {
+                const poolsObj = docSnap.data().pools;
+                dishPools = [
+                    poolsObj.breakfast || dishPools[0],
+                    poolsObj.lunch || dishPools[1],
+                    poolsObj.dinner || dishPools[2]
+                ];
+            } else {
+                savePoolsToFirestore(dishPools);
+            }
+            renderDishPoolItems();
+        }, (error) => {
+            console.error("Pools snapshot error:", error);
+        });
     }
-}
 
-renderMenu();
+    async function saveMenuToFirestore(newMenu) {
+        currentMenu = newMenu;
+        renderMenuTable();
+        if (!db) return;
+        try {
+            isSaving = true;
+            await setDoc(menuDocRef, { menu: newMenu, updatedAt: new Date().toISOString() });
+        } catch (err) {
+            console.error("Failed to save menu:", err);
+        } finally {
+            setTimeout(() => { isSaving = false; }, 300);
+        }
+    }
+
+    async function savePoolsToFirestore(newPools) {
+        dishPools = newPools;
+        renderDishPoolItems();
+        if (!db) return;
+        try {
+            // Convert 2D array into object to prevent nested array error in Firestore
+            const structuredPools = {
+                breakfast: newPools[0] || [],
+                lunch: newPools[1] || [],
+                dinner: newPools[2] || []
+            };
+            await setDoc(poolDocRef, { pools: structuredPools, updatedAt: new Date().toISOString() });
+        } catch (err) {
+            console.error("Failed to save pools:", err);
+        }
+    }
+
+    // Render Main Menu Table
+    function renderMenuTable() {
+        const tbody = document.getElementById("menuBody");
+        if (!tbody) return;
+
+        tbody.innerHTML = "";
+
+        days.forEach((day, dayIndex) => {
+            const tr = document.createElement("tr");
+            tr.className = dayIndex % 2 === 0 ? "bg-white" : "bg-[#fafcfb]";
+
+            // Day label cell
+            const dayTd = document.createElement("td");
+            dayTd.className = "py-3 px-3 font-bold bg-[#e6f5ec] text-[#16704c] border-r border-[#e2ebe5]";
+            dayTd.textContent = day;
+            tr.appendChild(dayTd);
+
+            // Meal Cells (Breakfast, Lunch, Dinner)
+            for (let mealIndex = 0; mealIndex < 3; mealIndex++) {
+                const td = document.createElement("td");
+                td.className = "p-3 editable-cell align-top text-slate-800 outline-none rounded-sm border-r border-b border-[#e2ebe5] last:border-r-0";
+                td.contentEditable = "true";
+                td.textContent = (currentMenu[dayIndex] && currentMenu[dayIndex][mealIndex]) ? currentMenu[dayIndex][mealIndex] : "";
+
+                td.setAttribute("data-day", dayIndex);
+                td.setAttribute("data-meal", mealIndex);
+
+                // Handle cell input update
+                td.addEventListener("blur", handleCellEdit);
+                td.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        td.blur();
+                    }
+                });
+
+                tr.appendChild(td);
+            }
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function handleCellEdit(event) {
+        const td = event.target;
+        const dayIdx = parseInt(td.getAttribute("data-day"));
+        const mealIdx = parseInt(td.getAttribute("data-meal"));
+        const newValue = td.innerText.trim();
+
+        if (currentMenu[dayIdx] && currentMenu[dayIdx][mealIdx] !== newValue) {
+            currentMenu[dayIdx][mealIdx] = newValue;
+            saveMenuToFirestore(currentMenu);
+        }
+    }
+
+    // RANDOM MENU FUNCTIONALITY
+    window.randomizeEntireMenu = function() {
+        const randomizedMenu = days.map(() => {
+            return [0, 1, 2].map(mealIdx => {
+                const pool = dishPools[mealIdx];
+                if (!pool || pool.length === 0) {
+                    return "Chưa có món cố định";
+                }
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                return pool[randomIndex];
+            });
+        });
+
+        saveMenuToFirestore(randomizedMenu);
+    };
+
+    // POOL MANAGEMENT FUNCTIONS
+    window.toggleDishPoolModal = function(show) {
+        const modal = document.getElementById("dishPoolModal");
+        if (show) {
+            modal.classList.remove("hidden");
+            renderDishPoolItems();
+        } else {
+            modal.classList.add("hidden");
+        }
+    };
+
+    window.switchPoolTab = function(tabIdx) {
+        activePoolTab = tabIdx;
+        document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+            if (idx === tabIdx) {
+                btn.className = "tab-btn px-4 py-2 font-semibold text-sm rounded-t-lg transition-all border-b-2 border-[#16845c] text-[#16845c] bg-white shadow-sm";
+            } else {
+                btn.className = "tab-btn px-4 py-2 font-medium text-sm rounded-t-lg transition-all text-slate-500 hover:text-slate-800 bg-transparent";
+            }
+        });
+        renderDishPoolItems();
+    };
+
+    function renderDishPoolItems() {
+        const container = document.getElementById("dishListContainer");
+        if (!container) return;
+
+        const currentPool = dishPools[activePoolTab] || [];
+        container.innerHTML = "";
+
+        if (currentPool.length === 0) {
+            container.innerHTML = `<p class="text-sm text-slate-400 italic py-4 text-center">Chưa có món ăn nào trong danh sách này.</p>`;
+            return;
+        }
+
+        currentPool.forEach((dish, idx) => {
+            const item = document.createElement("div");
+            item.className = "flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100 transition-all";
+            item.innerHTML = `
+                <span class="font-medium">${dish}</span>
+                <button onclick="removeDishFromPool(${idx})" class="text-rose-500 hover:text-rose-700 p-1 font-bold rounded" title="Xóa món">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    window.handleAddDish = function(event) {
+        event.preventDefault();
+        const input = document.getElementById("newDishInput");
+        const val = input.value.trim();
+        if (!val) return;
+
+        if (!dishPools[activePoolTab]) {
+            dishPools[activePoolTab] = [];
+        }
+
+        dishPools[activePoolTab].push(val);
+        input.value = "";
+        savePoolsToFirestore(dishPools);
+    };
+
+    window.removeDishFromPool = function(dishIdx) {
+        if (dishPools[activePoolTab]) {
+            dishPools[activePoolTab].splice(dishIdx, 1);
+            savePoolsToFirestore(dishPools);
+        }
+    };
+
+    // RESET FUNCTIONALITY WITH CUSTOM CONFIRM MODAL
+    let confirmCallback = null;
+
+    window.confirmResetMenu = function() {
+        showConfirmModal(
+            "Đặt lại thực đơn",
+            "Bạn có chắc chắn muốn khôi phục lại thực đơn ban đầu không? Thao tác này sẽ cập nhật trực tuyến cho tất cả mọi người.",
+            () => {
+                saveMenuToFirestore(defaultMenu.map(r => [...r]));
+            }
+        );
+    };
+
+    function showConfirmModal(title, message, onConfirm) {
+        document.getElementById("confirmTitle").innerText = title;
+        document.getElementById("confirmMessage").innerText = message;
+        confirmCallback = onConfirm;
+        document.getElementById("confirmModal").classList.remove("hidden");
+    }
+
+    window.closeConfirmModal = function(isOk) {
+        document.getElementById("confirmModal").classList.add("hidden");
+        if (isOk && typeof confirmCallback === "function") {
+            confirmCallback();
+        }
+        confirmCallback = null;
+    };
+
+    document.getElementById("confirmOkBtn").addEventListener("click", () => {
+        closeConfirmModal(true);
+    });
+
+    // Start App on window load
+    window.onload = function() {
+        initFirebase();
+    };
 </script>
 
 </body>
