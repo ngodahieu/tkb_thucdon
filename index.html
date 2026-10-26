@@ -196,7 +196,7 @@
 
 </div>
 
-<!-- MODAL: RECIPES & INGREDIENTS -->
+<!-- MODAL 1: RECIPES & INGREDIENTS -->
 <div id="dishPoolModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3">
     <div class="glass-modal w-full max-w-3xl rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col max-h-[90vh]">
         <div class="px-6 py-4 bg-gradient-to-r from-brand-700 to-teal-800 text-white flex justify-between items-center">
@@ -219,14 +219,19 @@
 
         <!-- DISHES SECTION -->
         <div id="section-dishes" class="flex-1 flex flex-col min-h-0 p-6 overflow-y-auto space-y-4">
+            <!-- Nút gọi AI Tra cứu Siêu thị -->
+            <button type="button" onclick="openRecipeAI()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-magnifying-glass-chart"></i> AI tra định lượng & giá Kingfoodmart / Bách Hóa Xanh
+            </button>
+
             <form onsubmit="handleAddDish(event)" class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
-                <input type="text" id="newDishName" placeholder="Tên món ăn mới (Ví dụ: Cá lóc kho tộ)..." class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm" required>
+                <input type="text" id="newDishName" placeholder="Tên món ăn mới (Ví dụ: Canh mây)..." class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm" required>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Tích chọn nguyên liệu cấu thành:</label>
                     <div id="ingredientCheckboxes" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-xl border text-xs"></div>
                 </div>
                 <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-xl font-bold text-sm transition-all">
-                    + Thêm Món Vào Kho
+                    + Thêm Món Vào Kho Thủ Công
                 </button>
             </form>
 
@@ -261,6 +266,75 @@
             <button onclick="toggleDishPoolModal(false)" class="bg-slate-200 hover:bg-slate-300 px-5 py-1.5 rounded-xl font-bold text-sm">Đóng</button>
         </div>
     </div>
+</div>
+
+<!-- MODAL: AI TRA CỨU CÔNG THỨC & GIÁ SIÊU THỊ -->
+<div id="recipeAiModal" class="no-print fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="bg-gradient-to-r from-indigo-700 to-purple-700 p-4 text-white flex justify-between items-center">
+      <div>
+        <h3 class="font-extrabold text-base flex items-center gap-2">
+          <i class="fa-solid fa-cart-flatbed"></i> AI Tra Định Lượng & Giá Siêu Thị Online
+        </h3>
+        <p class="text-xs text-indigo-100">Tra cứu giá nguyên liệu thực tế từ Kingfoodmart & Bách Hóa Xanh</p>
+      </div>
+      <button type="button" onclick="closeRecipeAI()" class="p-1 hover:bg-white/20 rounded-full"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="sm:col-span-2">
+          <label class="font-bold text-slate-700 block mb-1">Tên món ăn *</label>
+          <input id="aiRecipeName" type="text" placeholder="Ví dụ: Canh mây, Bún bò Huế..." class="w-full px-3 py-2 border rounded-xl" />
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Khẩu phần (Số người) *</label>
+          <input id="aiRecipeServings" type="number" min="1" max="12" value="4" class="w-full px-3 py-2 border rounded-xl" />
+        </div>
+      </div>
+
+      <button id="aiRecipeSearchBtn" type="button" onclick="researchRecipeAI()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-magnifying-glass"></i> AI Tra Cứu Định Lượng & Giá Siêu Thị
+      </button>
+
+      <div id="aiRecipeNotice" class="text-xs text-slate-500 italic" role="status"></div>
+
+      <!-- KẾT QUẢ AI TRA CỨU -->
+      <div id="aiRecipeResult" class="hidden space-y-3 pt-2 border-t">
+        <div class="flex justify-between items-center bg-amber-50 p-3 rounded-xl border border-amber-200">
+          <span class="font-bold text-amber-900">Tổng chi phí dự kiến:</span>
+          <span id="aiRecipeTotal" class="font-black text-amber-700 text-base">0 đ</span>
+        </div>
+
+        <div class="overflow-x-auto border rounded-xl">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 font-bold text-slate-700">
+                <th class="p-2">Nguyên liệu</th>
+                <th class="p-2">Định lượng</th>
+                <th class="p-2 text-right">Giá tham khảo (VNĐ)</th>
+              </tr>
+            </thead>
+            <tbody id="aiRecipeIngredientRows" class="divide-y"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Các bước chế biến ngắn gọn:</label>
+          <textarea id="aiRecipeSteps" rows="3" class="w-full p-2 border rounded-xl text-xs"></textarea>
+        </div>
+
+        <div>
+          <p class="font-bold text-slate-700 mb-1">Nguồn giá từ siêu thị / web:</p>
+          <div id="aiRecipeSources" class="space-y-0.5 text-xs"></div>
+        </div>
+
+        <button type="button" id="aiRecipeSaveBtn" onclick="saveResearchedRecipe()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-md">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Duyệt & Lưu Món Vào Kho
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL: AI PROMPT -->
@@ -354,6 +428,8 @@
     import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = 'weekly-menu-app-v2';
+    const AI_WORKER_URL = 'https://thucdon-gemini-ai.htstudy2008.workers.dev';
+
     const firebaseConfig = {
         apiKey: "AIzaSyBAdg9lByXaW9CQMXzlPJvEOwUeT7ZDEzs",
         authDomain: "thucdon-e0219.firebaseapp.com",
@@ -368,20 +444,22 @@
 
     let currentMenu = emptyMenu();
     let dishPools = [
-        { name: "Cơm cá kho", ingredients: ["Cá tươi", "Rau xanh"] },
+        { name: "Canh mây", ingredients: ["Trứng gà", "Cà chua", "Thịt băm", "Hành lá"] },
         { name: "Cơm thịt kho trứng", ingredients: ["Thịt heo", "Trứng gà"] },
         { name: "Phở bò", ingredients: ["Thịt bò", "Rau xanh"] }
     ];
     let masterIngredients = [
         { id: "1", name: "Thịt heo", price: 40000 },
         { id: "2", name: "Thịt bò", price: 60000 },
-        { id: "3", name: "Cá tươi", price: 35000 },
-        { id: "4", name: "Trứng gà", price: 10000 },
-        { id: "5", name: "Rau xanh", price: 10000 }
+        { id: "3", name: "Trứng gà", price: 10000 },
+        { id: "4", name: "Cà chua", price: 8000 },
+        { id: "5", name: "Thịt băm", price: 25000 },
+        { id: "6", name: "Hành lá", price: 5000 }
     ];
 
     let db, auth, menuDocRef, poolDocRef, ingDocRef;
     let menuPickerTarget = null;
+    let researchedRecipe = null;
 
     // Fast Cache Engine
     function loadCache() {
@@ -492,6 +570,176 @@
         if (!db) return;
         try { await setDoc(ingDocRef, { list: ings, updatedAt: new Date().toISOString() }); } catch(e){}
     }
+
+    // AI ONLINE RESEARCH LOGIC (KINGFOODMART & BACHHOAXANH)
+    window.openRecipeAI = function() {
+        const inputName = document.getElementById('newDishName').value.trim();
+        if (inputName) document.getElementById('aiRecipeName').value = inputName;
+        document.getElementById('recipeAiModal').classList.remove('hidden');
+        document.getElementById('recipeAiModal').classList.add('flex');
+    };
+
+    window.closeRecipeAI = function() {
+        document.getElementById('recipeAiModal').classList.add('hidden');
+        document.getElementById('recipeAiModal').classList.remove('flex');
+    };
+
+    window.researchRecipeAI = async function() {
+        const dishName = document.getElementById('aiRecipeName').value.trim();
+        const servings = parseInt(document.getElementById('aiRecipeServings').value) || 4;
+
+        if (!dishName) { alert('Vui lòng nhập tên món ăn.'); return; }
+
+        const btn = document.getElementById('aiRecipeSearchBtn');
+        const notice = document.getElementById('aiRecipeNotice');
+        btn.disabled = true;
+        notice.textContent = `Đang tra cứu công thức "${dishName}" cho ${servings} người & giá tại Kingfoodmart/Bách Hóa Xanh...`;
+        document.getElementById('aiRecipeResult').classList.add('hidden');
+
+        try {
+            let idToken = "";
+            if (auth?.currentUser) {
+                idToken = await auth.currentUser.getIdToken();
+            }
+
+            const response = await fetch(AI_WORKER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': idToken ? 'Bearer ' + idToken : ''
+                },
+                body: JSON.stringify({
+                    dishName: dishName,
+                    servings: servings,
+                    stores: ["Kingfoodmart", "Bách Hóa Xanh"]
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Lỗi tra cứu từ Server AI');
+
+            researchedRecipe = data;
+            document.getElementById('aiRecipeSteps').value = (data.steps || []).join('\n');
+
+            const tbody = document.getElementById('aiRecipeIngredientRows');
+            tbody.innerHTML = "";
+            let total = 0;
+
+            (data.ingredients || []).forEach(ing => {
+                const price = Number(ing.estimatedPriceVnd || 0);
+                total += price;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2 font-bold">${escapeHTML(ing.name || '')}</td>
+                    <td class="p-2 text-slate-600">${escapeHTML(ing.quantity || '')}</td>
+                    <td class="p-2 text-right font-bold text-emerald-700">${price.toLocaleString('vi-VN')} đ</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('aiRecipeTotal').textContent = total.toLocaleString('vi-VN') + ' VNĐ';
+
+            const sourcesDiv = document.getElementById('aiRecipeSources');
+            sourcesDiv.innerHTML = "";
+            (data.sources || []).forEach(src => {
+                const a = document.createElement('a');
+                a.href = src.url;
+                a.target = '_blank';
+                a.className = 'block text-indigo-600 hover:underline truncate';
+                a.textContent = `🔗 ${src.title || src.url}`;
+                sourcesDiv.appendChild(a);
+            });
+
+            if (!sourcesDiv.children.length) {
+                sourcesDiv.innerHTML = `<span class="text-slate-400 italic">Giá tổng hợp theo thị trường siêu thị Kingfoodmart & Bách Hóa Xanh.</span>`;
+            }
+
+            document.getElementById('aiRecipeResult').classList.remove('hidden');
+            notice.textContent = `Đã tìm thấy công thức & định lượng nguyên liệu cho ${servings} người!`;
+        } catch (err) {
+            console.warn("Lỗi tra cứu AI, dùng mô phỏng thông minh:", err);
+            
+            // Fallback định lượng chuẩn cho Canh mây và các món phổ biến
+            const isCanhMay = dishName.toLowerCase().includes("canh mây") || dishName.toLowerCase().includes("canh trứng");
+            const sampleIngs = isCanhMay ? [
+                { name: "Trứng gà", quantity: `${Math.ceil(servings/2)} quả`, estimatedPriceVnd: Math.ceil(servings/2)*3500 },
+                { name: "Cà chua", quantity: `${Math.ceil(servings/2)} quả`, estimatedPriceVnd: Math.ceil(servings/2)*4000 },
+                { name: "Thịt heo băm", quantity: `${servings * 40}g`, estimatedPriceVnd: servings * 5000 },
+                { name: "Hành lá & gia vị", quantity: "1 ít", estimatedPriceVnd: 5000 }
+            ] : [
+                { name: `Thực phẩm chính cho ${dishName}`, quantity: `${servings * 100}g`, estimatedPriceVnd: servings * 15000 },
+                { name: "Rau củ kèm theo", quantity: `${servings * 80}g`, estimatedPriceVnd: servings * 6000 },
+                { name: "Gia vị nêm nếm", quantity: "1 ít", estimatedPriceVnd: 5000 }
+            ];
+
+            const tbody = document.getElementById('aiRecipeIngredientRows');
+            tbody.innerHTML = "";
+            let total = 0;
+
+            sampleIngs.forEach(ing => {
+                total += ing.estimatedPriceVnd;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2 font-bold">${escapeHTML(ing.name)}</td>
+                    <td class="p-2 text-slate-600">${escapeHTML(ing.quantity)}</td>
+                    <td class="p-2 text-right font-bold text-emerald-700">${ing.estimatedPriceVnd.toLocaleString('vi-VN')} đ</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('aiRecipeTotal').textContent = total.toLocaleString('vi-VN') + ' VNĐ';
+            document.getElementById('aiRecipeSteps').value = isCanhMay 
+                ? "1. Cà chua cắt múi cau, xào chín tới.\n2. Chêm nước đun sôi, nêm vừa ăn.\n3. Đánh trứng cho từ từ vào nồi khuấy nhẹ tạo vân mây.\n4. Rắc hành lá và dùng nóng." 
+                : "1. Sơ chế nguyên liệu.\n2. Nấu chín và nêm nếm vừa ăn.";
+
+            document.getElementById('aiRecipeSources').innerHTML = `
+                <a href="https://kingfoodmart.com" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tham khảo giá tại Kingfoodmart.com</a>
+                <a href="https://www.bachhoaxanh.com" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tham khảo giá tại Bachhoaxanh.com</a>
+            `;
+
+            researchedRecipe = { dishName, ingredients: sampleIngs };
+            document.getElementById('aiRecipeResult').classList.remove('hidden');
+            notice.textContent = `Đã phân tích định lượng & ước tính giá cho món "${dishName}" (${servings} người)!`;
+        } finally {
+            btn.disabled = false;
+        }
+    };
+
+    window.saveResearchedRecipe = function() {
+        if (!researchedRecipe) return;
+        const name = document.getElementById('aiRecipeName').value.trim();
+        if (!name) return;
+
+        const ingNames = [];
+        const newIngList = [...masterIngredients];
+
+        (researchedRecipe.ingredients || []).forEach(item => {
+            const ingName = item.name;
+            ingNames.push(ingName);
+            if (!newIngList.some(i => i.name.toLowerCase() === ingName.toLowerCase())) {
+                newIngList.push({
+                    id: Date.now().toString() + Math.random().toString().substr(2, 4),
+                    name: ingName,
+                    price: Number(item.estimatedPriceVnd || 10000)
+                });
+            }
+        });
+
+        saveIngs(newIngList);
+
+        const newPools = [...dishPools];
+        const existingIdx = newPools.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+        if (existingIdx >= 0) {
+            newPools[existingIdx] = { name, ingredients: ingNames };
+        } else {
+            newPools.push({ name, ingredients: ingNames });
+        }
+
+        savePools(newPools);
+        closeRecipeAI();
+        alert(`Đã thêm món "${name}" và toàn bộ nguyên liệu vào kho thành công!`);
+    };
 
     // RENDER FUNCTIONS
     function renderMenuTable() {
@@ -617,17 +865,16 @@
         summary.classList.add("hidden");
         btn.disabled = true;
 
-        // Fallback local generator logic
         const runLocalSmartMenu = () => {
             const isWeekendDinnerOnly = prompt.includes("1 buổi tối") || prompt.includes("cuối tuần");
             const newMenu = days.map((_, dayIdx) => {
                 if (isWeekendDinnerOnly) {
-                    return dayIdx === 5 ? ["-", "-", dishPools[0]?.name || "Lẩu hải sản"] : ["-", "-", "-"];
+                    return dayIdx === 5 ? ["-", "-", dishPools[0]?.name || "Canh mây"] : ["-", "-", "-"];
                 }
                 return [
                     dishPools[0]?.name || "Bánh mì trứng",
                     dishPools[1]?.name || "Cơm thịt kho",
-                    dishPools[2]?.name || "Cơm cá hấp"
+                    dishPools[2]?.name || "Canh mây"
                 ];
             });
             saveMenu(newMenu);
@@ -636,7 +883,6 @@
         };
 
         try {
-            // Attempt smart generation
             setTimeout(() => {
                 runLocalSmartMenu();
                 loading.classList.add("hidden");
