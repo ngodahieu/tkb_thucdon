@@ -293,17 +293,11 @@
 
         <!-- TAB CONTENT 1: DISHES & RECIPES -->
         <div id="section-dishes" class="flex-1 flex flex-col min-h-0">
-            <!-- Meal Type Tabs -->
-            <div class="flex border-b border-slate-200/80 bg-slate-50/80 px-6 pt-2 gap-2">
-                <button id="tab-0" onclick="switchPoolTab(0)" class="tab-btn px-4 py-2 font-bold text-xs rounded-t-lg transition-all border-b-2 border-brand-600 text-brand-700 bg-white">
-                    🌅 Bữa Sáng
-                </button>
-                <button id="tab-1" onclick="switchPoolTab(1)" class="tab-btn px-4 py-2 font-medium text-xs rounded-t-lg transition-all text-slate-600 hover:text-slate-900">
-                    ☀️ Bữa Trưa
-                </button>
-                <button id="tab-2" onclick="switchPoolTab(2)" class="tab-btn px-4 py-2 font-medium text-xs rounded-t-lg transition-all text-slate-600 hover:text-slate-900">
-                    🌙 Bữa Tối
-                </button>
+            <!-- Một thư viện món ăn chung, không cần phân loại theo bữa -->
+            <div class="px-6 pt-4">
+                <input id="dishSearch" type="search" oninput="renderDishPoolItems()"
+                    placeholder="🔎 Tìm món ăn trong thư viện..."
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
             </div>
 
             <div class="p-6 overflow-y-auto flex-1 space-y-5">
@@ -328,7 +322,7 @@
                     </div>
 
                     <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Lưu Món Vào Thư Thư Viện
+                        <i class="fa-solid fa-plus"></i> Lưu món vào thư viện chung
                     </button>
                 </form>
 
@@ -374,6 +368,27 @@
             <button onclick="toggleDishPoolModal(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-6 py-2 rounded-xl font-bold text-sm transition-all">
                 Đóng
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CHỌN NHANH MÓN ĂN CHO TỪNG Ô -->
+<div id="menuPickerModal" class="no-print fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-700 text-white px-5 py-4 flex justify-between items-center">
+            <div><h3 class="font-extrabold text-lg">Chọn món ăn</h3><p id="menuPickerLabel" class="text-xs text-emerald-100 mt-1"></p></div>
+            <button type="button" onclick="closeMenuPicker()" aria-label="Đóng" class="p-2 rounded-full hover:bg-white/20"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-5 space-y-3">
+            <input id="menuPickerSearch" type="search" oninput="renderMenuPickerList()"
+                placeholder="Tìm món có sẵn hoặc nhập món mới..."
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+            <div id="menuPickerList" class="max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            <p class="text-xs text-slate-500">Chọn một món để lưu ngay. Nếu chưa có trong thư viện, bạn có thể nhập tên và chọn “Dùng tên vừa nhập”.</p>
+            <div class="flex flex-wrap gap-2 justify-between border-t pt-3">
+                <button type="button" onclick="chooseMenuDish('')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm text-slate-600">Để trống / Nghỉ ăn</button>
+                <button type="button" onclick="chooseTypedMenuDish()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold text-sm text-white">Dùng tên vừa nhập</button>
+            </div>
         </div>
     </div>
 </div>
@@ -511,9 +526,9 @@ const firebaseConfig = {
     // Dữ liệu luôn lấy từ Firestore, không chứa thực đơn mẫu trong HTML.
     const emptyMenu = () => days.map(() => ["", "", ""]);
     let currentMenu = emptyMenu();
-    let dishPools = [[], [], []];
+    let dishPools = [];
     let masterIngredients = [];
-    let activePoolTab = 0;
+    let menuPickerTarget = null;
     let currentMainTab = 'dishes';
     let db, auth;
     let menuDocRef, poolDocRef, ingDocRef;
@@ -589,7 +604,12 @@ const firebaseConfig = {
             loaded.pools = true;
             if (!pending.pools) {
                 const obj = snap.exists() ? snap.data().pools : null;
-                dishPools = [obj?.breakfast, obj?.lunch, obj?.dinner].map(x => Array.isArray(x) ? x : []);
+                const storedDishes = Array.isArray(obj?.all)
+                    ? obj.all
+                    : [...(obj?.breakfast || []), ...(obj?.lunch || []), ...(obj?.dinner || [])];
+                dishPools = storedDishes.map(d => typeof d === 'string'
+                    ? { name: d, ingredients: [], recipe: '', prepTime: '' }
+                    : d).filter(d => d && typeof d.name === 'string');
                 renderDishPoolItems();
                 calculateWeekStats();
             }
@@ -652,14 +672,10 @@ const firebaseConfig = {
 
     function savePoolsToFirestore(newPools) {
         if (!assertReady('pools')) return Promise.resolve(false);
-        dishPools = newPools.map(row => [...row]);
+        dishPools = newPools.map(item => ({ ...item }));
         renderDishPoolItems();
         calculateWeekStats();
-        const pools = {
-            breakfast: [...dishPools[0]],
-            lunch: [...dishPools[1]],
-            dinner: [...dishPools[2]]
-        };
+        const pools = { all: dishPools.map(item => ({ ...item })) };
         return enqueueSave('pools', poolDocRef, { pools });
     }
 
@@ -702,23 +718,19 @@ const firebaseConfig = {
 
             for (let mealIndex = 0; mealIndex < 3; mealIndex++) {
                 const td = document.createElement("td");
-                td.className = "p-3 editable-cell align-top border-r border-b border-slate-200/60 last:border-r-0 cursor-text rounded-lg";
-                td.contentEditable = "true";
-                const dishText = (currentMenu[dayIndex] && currentMenu[dayIndex][mealIndex]) ? currentMenu[dayIndex][mealIndex] : "";
-                
-                td.innerHTML = dishText === "-" || dishText === "" ? `<span class="text-slate-400 italic font-normal">Nghỉ / Không ăn</span>` : escapeHTML(dishText);
-
-                td.setAttribute("data-day", dayIndex);
-                td.setAttribute("data-meal", mealIndex);
-
-                td.addEventListener("focus", () => {
-                    if (!dishText || dishText === "-") td.textContent = "";
-                });
-                td.addEventListener("blur", handleCellEdit);
-                td.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
+                td.className = "p-3 editable-cell align-top border-r border-b border-slate-200/60 last:border-r-0 cursor-pointer rounded-lg";
+                const dishText = currentMenu[dayIndex]?.[mealIndex] || '';
+                td.innerHTML = dishText && dishText !== '-'
+                    ? `<span>${escapeHTML(dishText)}</span><span class="ml-2 text-emerald-600 opacity-50"><i class="fa-solid fa-pen-to-square"></i></span>`
+                    : `<span class="text-slate-400 italic font-normal">+ Chọn món / Nghỉ ăn</span>`;
+                td.title = 'Nhấn để tìm và chọn món từ thư viện';
+                td.setAttribute('role', 'button');
+                td.setAttribute('tabindex', '0');
+                td.addEventListener('click', () => openMenuPicker(dayIndex, mealIndex));
+                td.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        td.blur();
+                        openMenuPicker(dayIndex, mealIndex);
                     }
                 });
                 tr.appendChild(td);
@@ -727,20 +739,60 @@ const firebaseConfig = {
         });
     }
 
-    function handleCellEdit(event) {
-        const td = event.target;
-        if (!assertReady('menu')) { renderMenuTable(); return; }
-        const dayIdx = parseInt(td.getAttribute("data-day"));
-        const mealIdx = parseInt(td.getAttribute("data-meal"));
-        const newValue = td.innerText.trim();
+    // Chọn món nhanh từ thư viện; vẫn cho phép nhập tên món chưa đăng ký.
+    window.openMenuPicker = function(dayIndex, mealIndex) {
+        if (!assertReady('menu') || !assertReady('pools')) return;
+        menuPickerTarget = { dayIndex, mealIndex };
+        document.getElementById('menuPickerLabel').textContent =
+            `${days[dayIndex]} · ${['Bữa sáng', 'Bữa trưa', 'Bữa tối'][mealIndex]}`;
+        document.getElementById('menuPickerSearch').value = currentMenu[dayIndex][mealIndex] || '';
+        const modal = document.getElementById('menuPickerModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        renderMenuPickerList();
+        document.getElementById('menuPickerSearch').focus();
+    };
 
-        if (currentMenu[dayIdx] && currentMenu[dayIdx][mealIdx] !== newValue) {
-            currentMenu[dayIdx][mealIdx] = newValue;
-            saveMenuToFirestore(currentMenu);
-        } else {
-            renderMenuTable();
+    window.closeMenuPicker = function() {
+        document.getElementById('menuPickerModal').classList.add('hidden');
+        document.getElementById('menuPickerModal').classList.remove('flex');
+        menuPickerTarget = null;
+    };
+
+    window.renderMenuPickerList = function() {
+        const container = document.getElementById('menuPickerList');
+        const term = document.getElementById('menuPickerSearch').value.trim().toLocaleLowerCase('vi');
+        const matches = dishPools.filter(item =>
+            !term || String(item.name || '').toLocaleLowerCase('vi').includes(term));
+        container.replaceChildren();
+        if (!matches.length) {
+            container.innerHTML = '<p class="text-sm text-slate-500 col-span-2">Không tìm thấy món trong thư viện. Có thể nhập món mới bên trên.</p>';
+            return;
         }
-    }
+        matches.forEach(item => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'text-left px-3 py-3 rounded-xl border border-emerald-100 bg-emerald-50 hover:bg-emerald-100 text-sm font-semibold text-emerald-900';
+            button.textContent = item.name;
+            button.addEventListener('click', () => chooseMenuDish(item.name));
+            container.appendChild(button);
+        });
+    };
+
+    window.chooseTypedMenuDish = function() {
+        const value = document.getElementById('menuPickerSearch').value.trim();
+        if (!value) { alert('Hãy nhập tên món hoặc chọn “Để trống”.'); return; }
+        chooseMenuDish(value);
+    };
+
+    window.chooseMenuDish = function(name) {
+        if (!menuPickerTarget) return;
+        const { dayIndex, mealIndex } = menuPickerTarget;
+        const updated = currentMenu.map(row => [...row]);
+        updated[dayIndex][mealIndex] = name;
+        closeMenuPicker();
+        saveMenuToFirestore(updated);
+    };
 
     // STATS CALCULATOR
     function calculateWeekStats() {
@@ -748,7 +800,7 @@ const firebaseConfig = {
         let totalDishes = 0;
 
         // Flatten all registered recipes
-        const allRecipes = dishPools.flat();
+        const allRecipes = dishPools;
 
         currentMenu.forEach(dayRow => {
             dayRow.forEach(dishName => {
@@ -803,15 +855,6 @@ const firebaseConfig = {
         }
     };
 
-    window.switchPoolTab = function(tabIdx) {
-        activePoolTab = tabIdx;
-        document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
-            btn.className = idx === tabIdx 
-                ? "tab-btn px-4 py-2 font-bold text-xs rounded-t-lg transition-all border-b-2 border-brand-600 text-brand-700 bg-white"
-                : "tab-btn px-4 py-2 font-medium text-xs rounded-t-lg transition-all text-slate-600 hover:text-slate-900 bg-transparent";
-        });
-        renderDishPoolItems();
-    };
 
     function renderIngredientCheckboxes() {
         const container = document.getElementById("ingredientCheckboxes");
@@ -833,51 +876,46 @@ const firebaseConfig = {
     window.handleAddDish = function(e) {
         e.preventDefault();
         if (!assertReady('pools')) return;
-        const nameInput = document.getElementById("newDishName");
-        const prepInput = document.getElementById("newDishPrepTime");
-        const recipeInput = document.getElementById("newDishRecipe");
-
+        const nameInput = document.getElementById('newDishName');
+        const prepInput = document.getElementById('newDishPrepTime');
+        const recipeInput = document.getElementById('newDishRecipe');
         const name = nameInput.value.trim();
         if (!name) return;
-
-        const checkedIngs = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(cb => cb.value);
-
-        if (!dishPools[activePoolTab]) dishPools[activePoolTab] = [];
-        dishPools[activePoolTab].push({
-            name,
-            ingredients: checkedIngs,
-            recipe: recipeInput.value.trim(),
-            prepTime: prepInput.value.trim() || "15-20 phút"
-        });
-
-        nameInput.value = "";
-        prepInput.value = "";
-        recipeInput.value = "";
+        if (dishPools.some(d => d.name.toLocaleLowerCase('vi') === name.toLocaleLowerCase('vi'))) {
+            alert('Món ăn đã tồn tại trong thư viện.');
+            return;
+        }
+        const ingredients = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(cb => cb.value);
+        const next = [...dishPools, {
+            name, ingredients, recipe: recipeInput.value.trim(), prepTime: prepInput.value.trim() || '15-20 phút'
+        }];
+        savePoolsToFirestore(next);
+        nameInput.value = '';
+        prepInput.value = '';
+        recipeInput.value = '';
         document.querySelectorAll('input[name="dishIng"]').forEach(cb => cb.checked = false);
-
-        savePoolsToFirestore(dishPools);
     };
 
     window.removeDishFromPool = function(idx) {
         if (!assertReady('pools')) return;
-        if (dishPools[activePoolTab]) {
-            dishPools[activePoolTab].splice(idx, 1);
-            savePoolsToFirestore(dishPools);
-        }
+        if (!confirm('Xóa món ăn này khỏi thư viện?')) return;
+        savePoolsToFirestore(dishPools.filter((_, i) => i !== idx));
     };
 
     function renderDishPoolItems() {
         const container = document.getElementById("dishListContainer");
         if (!container) return;
-        const currentPool = dishPools[activePoolTab] || [];
+        const term = document.getElementById('dishSearch')?.value.trim().toLocaleLowerCase('vi') || '';
+        const currentPool = dishPools.map((item, idx) => ({ item, idx })).filter(({ item }) =>
+            !term || String(item.name || '').toLocaleLowerCase('vi').includes(term));
         container.innerHTML = "";
 
         if (currentPool.length === 0) {
-            container.innerHTML = `<p class="text-xs text-slate-400 italic py-6 text-center">Chưa có món ăn nào trong bữa này.</p>`;
+            container.innerHTML = `<p class="text-xs text-slate-400 italic py-6 text-center">Chưa có món ăn phù hợp trong thư viện.</p>`;
             return;
         }
 
-        currentPool.forEach((item, idx) => {
+        currentPool.forEach(({ item, idx }) => {
             const dishName = typeof item === 'object' ? item.name : item;
             const ings = (typeof item === 'object' && item.ingredients) ? item.ingredients : [];
             const recipe = (typeof item === 'object' && item.recipe) ? item.recipe : "";
@@ -962,14 +1000,11 @@ const firebaseConfig = {
     // RANDOMIZER
     window.randomizeEntireMenu = function() {
         if (!assertReady('menu') || !assertReady('pools')) return;
-        const randomizedMenu = days.map(() => {
-            return [0, 1, 2].map(mealIdx => {
-                const pool = dishPools[mealIdx];
-                if (!pool || pool.length === 0) return "Chưa có món";
-                const randObj = pool[Math.floor(Math.random() * pool.length)];
-                return typeof randObj === 'object' ? randObj.name : randObj;
-            });
-        });
+        if (!dishPools.length) { alert('Hãy thêm món ăn vào thư viện trước khi xáo trộn.'); return; }
+        const randomizedMenu = days.map(() => [0, 1, 2].map(() => {
+            const item = dishPools[Math.floor(Math.random() * dishPools.length)];
+            return item.name;
+        }));
         saveMenuToFirestore(randomizedMenu);
     };
 
@@ -1003,9 +1038,7 @@ const firebaseConfig = {
 
         try {
             const availableDishes = {
-                sang: dishPools[0].map(d => typeof d === 'object' ? d.name : d),
-                trua: dishPools[1].map(d => typeof d === 'object' ? d.name : d),
-                toi: dishPools[2].map(d => typeof d === 'object' ? d.name : d)
+                tatCa: dishPools.map(d => d.name)
             };
 
             const systemInstruction = `Bạn là chuyên gia dinh dưỡng và quản lý thực đơn gia đình cao cấp.
@@ -1014,9 +1047,7 @@ Mỗi ngày có 3 bữa: [Sáng, Trưa, Tối].
 Nếu người dùng yêu cầu bỏ bữa hoặc không ăn bữa nào đó, hãy ghi chính xác "-" cho ô đó.
 Ưu tiên sử dụng món có sẵn từ danh sách bên dưới, nhưng hoàn toàn có thể sáng tạo thêm các món ngon lành khác nếu phù hợp với yêu cầu.
 
-Món sáng sẵn có: ${JSON.stringify(availableDishes.sang)}
-Món trưa sẵn có: ${JSON.stringify(availableDishes.trua)}
-Món tối sẵn có: ${JSON.stringify(availableDishes.toi)}
+Thư viện món ăn chung (có thể dùng cho bất kỳ bữa nào): ${JSON.stringify(availableDishes.tatCa)}
 Bảng giá nguyên liệu: ${JSON.stringify(masterIngredients)}
 
 Trả về JSON Schema chuẩn gồm:
@@ -1084,7 +1115,7 @@ Trả về JSON Schema chuẩn gồm:
 
         const ingMap = {};
         let grandTotal = 0;
-        const allRecipes = dishPools.flat();
+        const allRecipes = dishPools;
 
         currentMenu.forEach(row => {
             row.forEach(dishName => {
