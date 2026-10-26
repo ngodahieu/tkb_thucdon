@@ -106,7 +106,7 @@
             <span>🥗</span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-            Lên lịch ăn uống thông minh, tự động thêm món từ nguyên liệu & định lượng dư hợp lý
+            Lên lịch ăn uống thông minh, tự động lưu món & nguyên liệu chi tiết với định lượng dôi dư hợp lý
         </p>
     </header>
 
@@ -341,7 +341,7 @@
     <div class="glass-modal w-full max-w-lg rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col">
         <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center">
             <h3 class="text-lg font-extrabold flex items-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> AI Lập Lịch & Tạo Món Từ Tủ Lạnh
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> AI Lập Lịch & Tự Tạo Món
             </h3>
             <button onclick="toggleAiModal(false)" class="text-white hover:opacity-80 text-xl font-bold">
                 <i class="fa-solid fa-xmark"></i>
@@ -351,14 +351,14 @@
         <div class="p-6 space-y-4">
             <!-- Tùy chọn 1: Nguyên liệu sẵn có -->
             <div>
-                <label class="block text-xs font-bold text-emerald-800 uppercase mb-1">🥩 Nguyên liệu sẵn có trong tủ lạnh (AI tự tạo món mới từ đây):</label>
+                <label class="block text-xs font-bold text-emerald-800 uppercase mb-1">🥩 Nguyên liệu sẵn có trong tủ lạnh (Nếu có):</label>
                 <input id="aiAvailableIngredients" type="text" class="w-full px-3.5 py-2 border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm" placeholder="Ví dụ: Trứng gà, thịt heo, cà chua, bắp cải, cá lóc..." />
             </div>
 
             <!-- Tùy chọn 2: Yêu cầu đặc biệt -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">📝 Yêu cầu riêng về thực đơn (Ngân sách, số món/bữa):</label>
-                <textarea id="aiPromptInput" rows="2.5" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-600 text-sm" placeholder="Ví dụ: Mỗi bữa trưa/tối gồm 2 món (1 món mặn + 1 món canh), ngân sách hợp lý..."></textarea>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">📝 Yêu cầu thực đơn (Tùy chọn):</label>
+                <textarea id="aiPromptInput" rows="2.5" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-600 text-sm" placeholder="Ví dụ: Mỗi bữa trưa/tối gồm 2 món (1 món mặn + 1 món canh), tiết kiệm chi phí..."></textarea>
             </div>
 
             <div class="flex flex-wrap gap-1.5">
@@ -369,7 +369,7 @@
 
             <div id="aiLoading" class="hidden text-center py-3 text-purple-700">
                 <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-1"></i>
-                <p class="text-xs font-bold">AI đang tạo món mới từ nguyên liệu & xếp lịch đa món...</p>
+                <p class="text-xs font-bold">AI đang tạo món mới & xếp lịch đa món...</p>
             </div>
 
             <div id="aiSummary" class="hidden p-3 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950"></div>
@@ -634,7 +634,7 @@
             let total = 0;
 
             (data.ingredients || []).forEach(ing => {
-                const price = Math.round(Number(ing.estimatedPriceVnd || 0) * 1.15); // Giá dôi ra tý cho thoải mái
+                const price = Math.round(Number(ing.estimatedPriceVnd || 0) * 1.15);
                 total += price;
 
                 const tr = document.createElement('tr');
@@ -669,7 +669,6 @@
             console.warn("Lỗi tra cứu AI, dùng mô phỏng thông minh nâng định lượng dư:", err);
             
             const isCanhMay = dishName.toLowerCase().includes("canh mây") || dishName.toLowerCase().includes("canh trứng");
-            // Mô phỏng định lượng dư 20%
             const sampleIngs = isCanhMay ? [
                 { name: "Trứng gà", quantity: `${Math.ceil(servings/2) + 1} quả`, estimatedPriceVnd: (Math.ceil(servings/2) + 1)*3500 },
                 { name: "Cà chua", quantity: `${Math.ceil(servings/2) + 1} quả`, estimatedPriceVnd: (Math.ceil(servings/2) + 1)*4000 },
@@ -702,8 +701,8 @@
                 : "1. Sơ chế nguyên liệu dư thoải mái.\n2. Chế biến chín tới và nêm nếm hợp vị.";
 
             document.getElementById('aiRecipeSources').innerHTML = `
-                <a href="https://kingfoodmart.com" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tra giá siêu thị Kingfoodmart.com</a>
-                <a href="https://www.bachhoaxanh.com" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tra giá siêu thị Bachhoaxanh.com</a>
+                <a href="https://kingfoodmart.com/?srsltid=AYCX9vIiyd-3wR-cCeMkGI1Zs5f5Cl7YeszsMys7NbYz02N9ZEhyAe6Q" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tra giá siêu thị Kingfoodmart.com</a>
+                <a href="https://www.bachhoaxanh.com/" target="_blank" class="block text-indigo-600 hover:underline">🔗 Tra giá siêu thị Bachhoaxanh.com</a>
             `;
 
             researchedRecipe = { dishName, ingredients: sampleIngs };
@@ -786,7 +785,6 @@
             row.forEach(mealStr => {
                 if (mealStr && mealStr !== "-") {
                     count++;
-                    // Tách nhiều món phân cách bởi dấu phẩy hoặc dấu cộng
                     const dishNames = mealStr.split(/,|\+|\n/).map(s => s.trim()).filter(Boolean);
                     dishNames.forEach(dishName => {
                         const found = dishPools.find(d => d.name.toLowerCase() === dishName.toLowerCase());
@@ -854,7 +852,7 @@
         saveMenu(updated);
     };
 
-    // AI LẬP LỊCH & TỰ ĐỘNG SÁNG TẠO MÓN TỪ NGUYÊN LIỆU TỦ LẠNH
+    // AI LẬP LỊCH & TỰ ĐỘNG BÓC TÁCH MÓN + NGUYÊN LIỆU ĐỂ LƯU
     window.toggleAiModal = function(show) {
         const modal = document.getElementById("aiModal");
         if (show) modal.classList.remove("hidden");
@@ -869,11 +867,6 @@
         const userIngsStr = document.getElementById("aiAvailableIngredients").value.trim();
         const prompt = document.getElementById("aiPromptInput").value.trim();
 
-        if (!userIngsStr && !prompt) {
-            alert("Vui lòng nhập nguyên liệu tủ lạnh hoặc yêu cầu cho thực đơn!");
-            return;
-        }
-
         const loading = document.getElementById("aiLoading");
         const summary = document.getElementById("aiSummary");
         const btn = document.getElementById("btnGenerateAi");
@@ -883,36 +876,57 @@
         btn.disabled = true;
 
         setTimeout(() => {
-            // 1. Tách nguyên liệu người dùng đưa
-            const rawIngs = userIngsStr.split(/,|\+|\n/).map(s => s.trim()).filter(Boolean);
-            const addedDishes = [];
             const newPools = [...dishPools];
             const newIngs = [...masterIngredients];
+            const addedDishes = [];
 
-            // 2. AI tự sáng tạo món từ nguyên liệu đó và tự động lưu vào kho món ăn
-            if (rawIngs.length > 0) {
+            // 1. Xử lý nguyên liệu tủ lạnh (nếu người dùng có nhập)
+            if (userIngsStr) {
+                const rawIngs = userIngsStr.split(/,|\+|\n/).map(s => s.trim()).filter(Boolean);
                 rawIngs.forEach(ing => {
                     if (!newIngs.some(i => i.name.toLowerCase() === ing.toLowerCase())) {
-                        newIngs.push({ id: Date.now().toString() + Math.random().toString().substr(2, 3), name: ing, price: 15000 });
+                        newIngs.push({ id: Date.now().toString() + Math.random().toString().substr(2, 3), name: ing, price: 18000 });
                     }
                 });
 
-                // AI tạo các món kết hợp đa món
-                const createdDish1 = { name: `Món xào tổng hợp (${rawIngs.slice(0, 2).join(" & ")})`, ingredients: rawIngs.slice(0, 2) };
-                const createdDish2 = { name: `Canh ${rawIngs[0] || "rau"} thanh nhiệt`, ingredients: [rawIngs[0] || "Rau"] };
+                const created1 = { name: `Xào tổng hợp (${rawIngs.slice(0,2).join(" & ")})`, ingredients: rawIngs.slice(0, 2) };
+                const created2 = { name: `Canh ${rawIngs[0] || "rau"} dôi dư`, ingredients: [rawIngs[0] || "Rau xanh"] };
                 
-                [createdDish1, createdDish2].forEach(d => {
+                [created1, created2].forEach(d => {
                     if (!newPools.some(p => p.name.toLowerCase() === d.name.toLowerCase())) {
                         newPools.push(d);
                         addedDishes.push(d.name);
                     }
                 });
-
-                saveIngs(newIngs);
-                savePools(newPools);
             }
 
-            // 3. Xếp lịch đa món cho từng ngày (Mỗi bữa ít nhất 1 món, có thể 2-3 món)
+            // 2. Tự tạo món ăn mới chuẩn Kingfoodmart / Bách Hóa Xanh nếu kho chưa đủ đa dạng
+            const suggestedDishes = [
+                { name: "Sườn xào chua ngọt", ings: ["Sườn heo", "Cà chua", "Hành lá", "Tỏi"] },
+                { name: "Canh riêu cua đồng", ings: ["Cua đồng", "Cà chua", "Hành lá"] },
+                { name: "Gà kho sả ớt", ings: ["Thịt gà", "Sả", "Ớt", "Hành lá"] },
+                { name: "Canh bí đao thịt băm", ings: ["Bí đao", "Thịt băm", "Hành lá"] }
+            ];
+
+            suggestedDishes.forEach(sd => {
+                // Đăng ký nguyên liệu mới vào kho nếu chưa có
+                sd.ings.forEach(ingName => {
+                    if (!newIngs.some(i => i.name.toLowerCase() === ingName.toLowerCase())) {
+                        newIngs.push({ id: Date.now().toString() + Math.random().toString().substr(2, 3), name: ingName, price: 15000 });
+                    }
+                });
+                // Đăng ký món ăn mới vào kho
+                if (!newPools.some(p => p.name.toLowerCase() === sd.name.toLowerCase())) {
+                    newPools.push({ name: sd.name, ingredients: sd.ings });
+                    addedDishes.push(sd.name);
+                }
+            });
+
+            // LƯU CƠ SỞ DỮ LIỆU KHO MÓN VÀ KHO NGUYÊN LIỆU NGAY LẬP TỨC
+            saveIngs(newIngs);
+            savePools(newPools);
+
+            // 3. Xếp lịch đa món cho từng ngày (Mỗi bữa có ít nhất 1 món, bữa trưa/tối có 2 món)
             const availableNames = newPools.map(p => p.name);
             const getMultiDishes = (count = 2) => {
                 const picked = [];
@@ -924,20 +938,21 @@
             };
 
             const newMenu = days.map(() => [
-                getMultiDishes(1), // Bữa sáng (1 món chính)
-                getMultiDishes(2), // Bữa trưa (2 món: Mặn + Canh/Rau)
-                getMultiDishes(2)  // Bữa tối (2 món: Mặn + Canh/Rau)
+                getMultiDishes(1), // Sáng
+                getMultiDishes(2), // Trưa (2 món)
+                getMultiDishes(2)  // Tối (2 món)
             ]);
 
+            // LƯU LỊCH THỰC ĐƠN
             saveMenu(newMenu);
 
             loading.classList.add("hidden");
             btn.disabled = false;
 
             summary.innerHTML = `
-                ✨ <b>Đã lập thực đơn thành công!</b><br>
-                ${addedDishes.length ? `🍲 <b>AI đã tạo & thêm món mới từ tủ lạnh:</b> ${addedDishes.join(", ")}<br>` : ''}
-                🍱 <b>Đã sắp xếp đa món cho từng buổi:</b> Bữa trưa/tối gồm 2 món kết hợp đầy đủ dinh dưỡng.
+                ✨ <b>Đã lập thực đơn & cập nhật cơ sở dữ liệu!</b><br>
+                🍲 <b>Đã thêm vào Kho món ăn:</b> ${addedDishes.join(", ")}.<br>
+                🥩 <b>Đã tự động bổ sung nguyên liệu & giá tham khảo vào Kho nguyên liệu!</b>
             `;
             summary.classList.remove("hidden");
         }, 1200);
@@ -954,9 +969,13 @@
         if (t === 'dishes') {
             document.getElementById("section-dishes").classList.remove("hidden");
             document.getElementById("section-ingredients").classList.add("hidden");
+            document.getElementById("main-tab-dishes").className = "px-4 py-2 font-bold text-sm rounded-t-xl border-b-2 border-brand-600 text-brand-700 bg-white";
+            document.getElementById("main-tab-ingredients").className = "px-4 py-2 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900";
         } else {
             document.getElementById("section-ingredients").classList.remove("hidden");
             document.getElementById("section-dishes").classList.add("hidden");
+            document.getElementById("main-tab-ingredients").className = "px-4 py-2 font-bold text-sm rounded-t-xl border-b-2 border-brand-600 text-brand-700 bg-white";
+            document.getElementById("main-tab-dishes").className = "px-4 py-2 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900";
         }
     };
 
