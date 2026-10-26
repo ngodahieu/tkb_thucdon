@@ -321,6 +321,7 @@
                         </div>
                     </div>
 
+                    <button type="button" onclick="openRecipeAI()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass-chart"></i> AI tra công thức & giá Bách Hóa Xanh / Kingfoodmart</button>
                     <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus"></i> Lưu món vào thư viện chung
                     </button>
@@ -391,6 +392,37 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<!-- AI RECIPE SEARCH MODAL -->
+<div id="recipeAiModal" class="no-print fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[94vh] flex flex-col overflow-hidden">
+    <div class="bg-gradient-to-r from-indigo-700 to-purple-700 p-5 text-white flex justify-between gap-3 items-center">
+      <div><h3 class="font-extrabold text-lg">AI tra cứu món ăn & giá siêu thị</h3><p class="text-xs text-indigo-100">Tìm công thức và giá tham khảo từ thông tin web có nguồn</p></div>
+      <button type="button" onclick="closeRecipeAI()" class="p-2 hover:bg-white/20 rounded-full" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-5 overflow-y-auto space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <label class="sm:col-span-2 text-xs font-bold text-slate-700">Tên món ăn *<input id="aiRecipeName" type="text" placeholder="Ví dụ: Canh chua cá lóc" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm" /></label>
+        <label class="text-xs font-bold text-slate-700">Số suất ăn<input id="aiRecipeServings" type="number" min="1" max="12" value="4" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm" /></label>
+        <label class="sm:col-span-3 text-xs font-bold text-slate-700">Nguyên liệu bạn có (không bắt buộc)<textarea id="aiRecipeIngredients" rows="2" placeholder="Cá lóc, cà chua, thơm...; để trống cho AI gợi ý" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm"></textarea></label>
+      </div>
+      <button id="aiRecipeSearchBtn" type="button" onclick="researchRecipeAI()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu công thức & giá online</button>
+      <div id="aiRecipeNotice" class="text-xs text-slate-600" role="status" aria-live="polite">Giá chỉ để tham khảo; kiểm tra lại trên trang bán hàng trước khi mua.</div>
+      <div id="aiRecipeResult" class="hidden space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="text-xs font-bold">Thời gian chế biến<input id="aiRecipeTime" class="mt-1 w-full px-3 py-2 border rounded-lg text-sm"></label>
+          <div class="p-3 bg-amber-50 rounded-xl text-amber-900 text-sm font-bold">Ước tính tổng: <span id="aiRecipeTotal">0 đ</span></div>
+        </div>
+        <p class="text-xs text-amber-700">Giá do AI gợi ý, không phải báo giá đã xác minh. Bạn có thể sửa từng giá; khi lưu, giá mới chỉ được thêm cho nguyên liệu chưa tồn tại trong kho.</p>
+        <div class="overflow-x-auto"><table class="w-full text-sm border-collapse"><thead><tr class="bg-slate-100"><th class="p-2 text-left">Nguyên liệu</th><th class="p-2 text-left">Định lượng</th><th class="p-2 text-left">Giá tham khảo cho lượng này (đ)</th></tr></thead><tbody id="aiRecipeIngredientRows"></tbody></table></div>
+        <label class="text-xs font-bold block">Các bước thực hiện<textarea id="aiRecipeSteps" rows="6" class="mt-1 w-full px-3 py-2 border rounded-xl text-sm"></textarea></label>
+        <div><p class="font-bold text-sm text-slate-700 mb-2">Nguồn AI đã tìm thấy (hãy mở để kiểm tra giá)</p><div id="aiRecipeSources" class="text-xs space-y-1"></div><div id="aiRecipeSearchEntry"></div></div>
+        <button type="button" id="aiRecipeSaveBtn" onclick="saveResearchedRecipe()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl"><i class="fa-solid fa-cloud-arrow-up"></i> Duyệt & lưu công thức vào Firestore</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL 2: AI PROMPT & GENERATION -->
@@ -508,6 +540,8 @@
 
    
 const appId = 'weekly-menu-app-v2';
+// THAY URL này bằng địa chỉ Worker ...workers.dev của bạn (không có dấu / ở cuối).
+const AI_WORKER_URL = 'https://thucdon-gemini-ai.htstudy2008.workers.dev/';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBAdg9lByXaW9CQMXzlPJvEOwUeT7ZDEzs",
@@ -694,6 +728,127 @@ const firebaseConfig = {
             '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
         })[char]);
     }
+
+
+    // AI RECIPE LOOKUP - Calls Firebase Function; key stays on the server.
+    let researchedRecipe = null;
+    window.openRecipeAI = function() {
+        document.getElementById('aiRecipeName').value = document.getElementById('newDishName').value.trim();
+        document.getElementById('aiRecipeIngredients').value = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(x => x.value).join(', ');
+        const modal = document.getElementById('recipeAiModal');
+        modal.classList.remove('hidden'); modal.classList.add('flex');
+    };
+    window.closeRecipeAI = function() {
+        const modal = document.getElementById('recipeAiModal');
+        modal.classList.add('hidden'); modal.classList.remove('flex');
+    };
+    const moneyAI = n => Number(n || 0).toLocaleString('vi-VN') + ' đ';
+    function updateRecipeTotal() {
+        const numbers = [...document.querySelectorAll('.ai-price')].map(el => Number(el.value) || 0);
+        document.getElementById('aiRecipeTotal').textContent = moneyAI(numbers.reduce((a,b)=>a+b,0));
+    }
+    window.researchRecipeAI = async function() {
+        if (!firebaseReady || !auth?.currentUser) { alert('Cần kết nối Firebase trước khi tra cứu.'); return; }
+        const dishName = document.getElementById('aiRecipeName').value.trim();
+        if (!dishName) { alert('Nhập tên món ăn trước.'); return; }
+        const button = document.getElementById('aiRecipeSearchBtn');
+        const notice = document.getElementById('aiRecipeNotice');
+        button.disabled = true;
+        notice.textContent = 'Đang tìm công thức và giá tham khảo từ nguồn web...';
+        document.getElementById('aiRecipeResult').classList.add('hidden');
+        try {
+            if (!AI_WORKER_URL.startsWith('https://')) {
+                throw new Error('Bạn chưa dán địa chỉ Cloudflare Worker vào AI_WORKER_URL.');
+            }
+            const idToken = await auth.currentUser.getIdToken();
+            const response = await fetch(AI_WORKER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + idToken
+                },
+                body: JSON.stringify({
+                    dishName,
+                    ingredients: document.getElementById('aiRecipeIngredients').value.trim(),
+                    servings: Number(document.getElementById('aiRecipeServings').value) || 4
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Worker không thể tra cứu.');
+            if (!Array.isArray(data.ingredients) || !data.ingredients.length) throw new Error('Không có nguyên liệu được trả về');
+            researchedRecipe = data;
+            document.getElementById('aiRecipeTime').value = data.prepTime || '';
+            document.getElementById('aiRecipeSteps').value = (data.steps || []).join('\n');
+            const tbody = document.getElementById('aiRecipeIngredientRows');
+            tbody.replaceChildren();
+            data.ingredients.forEach(ing => {
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                const name = document.createElement('td'); name.className = 'p-2'; name.textContent = ing.name || '';
+                const qty = document.createElement('td'); qty.className = 'p-2'; qty.textContent = ing.quantity || '';
+                const cell = document.createElement('td'); cell.className = 'p-2';
+                const input = document.createElement('input'); input.type = 'number'; input.min = '0'; input.step = '1000';
+                input.value = Number(ing.estimatedPriceVnd) || 0; input.className = 'ai-price w-32 border px-2 py-2 rounded-lg';
+                input.addEventListener('input', updateRecipeTotal); cell.appendChild(input);
+                row.append(name, qty, cell); tbody.appendChild(row);
+            });
+            const sources = document.getElementById('aiRecipeSources'); sources.replaceChildren();
+            (data.sources || []).forEach(item => {
+                if (!/^https:\/\//.test(item.url || '')) return;
+                const link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+                link.className = 'block text-indigo-700 underline break-all'; link.textContent = item.title || item.url;
+                sources.appendChild(link);
+            });
+            if (!sources.children.length) sources.textContent = 'Không tìm được nguồn web xác minh. Tất cả giá đều cần kiểm tra thủ công.';
+            const searchEntry = document.getElementById('aiRecipeSearchEntry');
+            searchEntry.replaceChildren();
+            // Google Search Suggestions HTML is produced by Google's grounding API.
+            if (typeof data.searchEntryHtml === 'string' && data.searchEntryHtml.length < 15000) {
+                searchEntry.innerHTML = data.searchEntryHtml;
+            }
+            updateRecipeTotal();
+            document.getElementById('aiRecipeResult').classList.remove('hidden');
+            notice.textContent = 'Đã tạo bản nháp. Kiểm tra định lượng, giá và nguồn trước khi lưu.';
+        } catch (error) {
+            console.error('Tra cứu món ăn:', error);
+            notice.textContent = 'Không tra cứu được: ' + (error.message || 'Kiểm tra Cloudflare Worker và Gemini API.');
+        } finally { button.disabled = false; }
+    };
+    window.saveResearchedRecipe = async function() {
+        if (!researchedRecipe || !assertReady('pools') || !assertReady('ingredients')) return;
+        const dishName = document.getElementById('aiRecipeName').value.trim();
+        if (!dishName) return;
+        const rows = [...document.querySelectorAll('#aiRecipeIngredientRows tr')];
+        const names = researchedRecipe.ingredients.map(i => String(i.name || '').trim()).filter(Boolean);
+        const newIngs = researchedRecipe.ingredients.map((i, idx) => ({
+            id: 'ai_' + Date.now() + '_' + idx,
+            name: String(i.name || '').trim(),
+            price: Math.max(0, Number(rows[idx]?.querySelector('input')?.value) || 0)
+        })).filter(i => i.name && !masterIngredients.some(old => old.name.toLocaleLowerCase('vi') === i.name.toLocaleLowerCase('vi')));
+        const recipe = {
+            name: dishName,
+            ingredients: names,
+            recipe: document.getElementById('aiRecipeSteps').value.trim(),
+            prepTime: document.getElementById('aiRecipeTime').value.trim(),
+            aiEstimatedCost: [...document.querySelectorAll('.ai-price')].reduce((acc, input) => acc + Math.max(0, Number(input.value) || 0), 0),
+            sourceLinks: (researchedRecipe.sources || []).map(s => s.url).filter(url => /^https:\/\//.test(url || '')).slice(0, 12),
+            priceNote: 'Giá AI ước tính; kiểm tra lại theo khu vực/quy cách.'
+        };
+        const oldIdx = dishPools.findIndex(i => i.name.toLocaleLowerCase('vi') === dishName.toLocaleLowerCase('vi'));
+        if (oldIdx >= 0 && !confirm('Món đã tồn tại. Bạn có muốn cập nhật công thức không?')) return;
+        const next = [...dishPools];
+        if (oldIdx >= 0) next[oldIdx] = recipe; else next.push(recipe);
+        const button = document.getElementById('aiRecipeSaveBtn'); button.disabled = true;
+        try {
+            const okIngredient = !newIngs.length || await saveIngredientsToFirestore([...masterIngredients, ...newIngs]);
+            if (!okIngredient) throw new Error('Không thể lưu nguyên liệu');
+            const okRecipe = await savePoolsToFirestore(next);
+            if (!okRecipe) throw new Error('Không thể lưu công thức');
+            closeRecipeAI();
+            alert('Đã lưu công thức và nguyên liệu mới vào Firebase.');
+        } catch (error) { alert(error.message); }
+        finally { button.disabled = false; }
+    };
 
     // RENDER MENU TABLE
     function renderMenuTable() {
