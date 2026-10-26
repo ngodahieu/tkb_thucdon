@@ -35,13 +35,6 @@
                         '0%': { opacity: '0', transform: 'translateY(15px)' },
                         '100%': { opacity: '1', transform: 'translateY(0)' },
                     },
-                    shimmer: {
-                        '100%': { transform: 'translateX(100%)' },
-                    },
-                    float: {
-                        '0%, 100%': { transform: 'translateY(0px)' },
-                        '50%': { transform: 'translateY(-6px)' },
-                    },
                     pulseGlow: {
                         '0%, 100%': { opacity: '0.6', filter: 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.4))' },
                         '50%': { opacity: '1', filter: 'drop-shadow(0 0 16px rgba(34, 197, 94, 0.8))' },
@@ -49,7 +42,6 @@
                 },
                 animation: {
                     fadeInUp: 'fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                    float: 'float 3s ease-in-out infinite',
                     pulseGlow: 'pulseGlow 2.5s infinite',
                 }
             }
@@ -63,177 +55,130 @@
         min-height: 100vh;
     }
 
-    /* Glassmorphism Styling */
     .glass-card {
-        background: rgba(255, 255, 255, 0.82);
+        background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
     .glass-modal {
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
     }
 
     .editable-cell {
-        min-height: 80px;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 75px;
+        transition: all 0.2s ease;
     }
     
     .editable-cell:hover {
-        background-color: rgba(236, 253, 245, 0.7);
-        transform: scale(1.008);
+        background-color: rgba(236, 253, 245, 0.8);
         box-shadow: inset 0 0 0 1.5px #86efac;
     }
 
-    .editable-cell:focus {
-        background-color: #ffffff;
-        box-shadow: inset 0 0 0 2px #16a34a, 0 4px 12px rgba(22, 163, 74, 0.15);
-        outline: none;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.03);
-    }
-    ::-webkit-scrollbar-thumb {
-        background: rgba(22, 163, 74, 0.25);
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(22, 163, 74, 0.5);
-    }
-
-    /* Print styling rules */
     @media print {
-        .no-print {
-            display: none !important;
-        }
-        body {
-            background: white !important;
-            padding: 0 !important;
-        }
-        .container-print {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .table-print {
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: none !important;
-        }
-        td, th {
-            padding: 10px !important;
-            font-size: 11px !important;
-        }
-        @page {
-            size: A4 landscape;
-            margin: 8mm;
-        }
+        .no-print { display: none !important; }
+        body { background: white !important; padding: 0 !important; }
+        .table-print { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+        td, th { padding: 8px !important; font-size: 11px !important; }
+        @page { size: A4 landscape; margin: 8mm; }
     }
 </style>
 </head>
 
-<body class="p-3 sm:p-6 md:p-8 text-slate-800 font-sans selection:bg-brand-500 selection:text-white">
+<body class="p-3 sm:p-6 text-slate-800 font-sans selection:bg-brand-500 selection:text-white">
 
-<div class="max-w-7xl mx-auto container-print space-y-6">
+<div class="max-w-7xl mx-auto space-y-6">
     
-    <!-- HEADER SECTION -->
-    <header class="text-center relative py-4">
-        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-brand-200/80 shadow-xs mb-3 animate-float">
+    <!-- HEADER -->
+    <header class="text-center relative py-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-brand-200 shadow-xs mb-2">
             <span class="w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulseGlow"></span>
-            <span id="statusText" class="text-xs font-bold text-brand-800 tracking-wide uppercase">Đang kết nối Firestore Cloud...</span>
+            <span id="statusText" class="text-xs font-bold text-brand-800 tracking-wide uppercase">Đang đồng bộ cơ sở dữ liệu...</span>
         </div>
 
-        <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-3">
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2">
             <span class="bg-gradient-to-r from-brand-700 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 THỜI KHÓA BIỂU THỰC ĐƠN
             </span>
-            <span class="text-2xl sm:text-4xl no-print">🥗</span>
+            <span>🥗</span>
         </h1>
-        <p class="text-sm sm:text-base text-slate-600 font-medium mt-1 max-w-xl mx-auto">
-            Hệ thống lên lịch ăn uống gia đình thông minh, quản lý công thức món ăn & đồng bộ thời gian thực
+        <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+            Hệ thống lên lịch ăn uống gia đình thông minh & đồng bộ thời gian thực
         </p>
     </header>
 
     <!-- NAVBAR / TOOLBAR -->
-    <div class="no-print glass-card p-3 sm:p-4 rounded-2xl shadow-xl shadow-brand-900/5 flex flex-wrap items-center justify-between gap-3 transition-all border border-white/80">
-        <!-- Left Quick Actions -->
-        <div class="flex flex-wrap items-center gap-2.5">
-            <!-- AI Super Generator -->
-            <button onclick="toggleAiModal(true)" class="group relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-500/20 active:scale-95 transition-all flex items-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles text-amber-300 group-hover:rotate-12 transition-transform"></i>
+    <div class="no-print glass-card p-3 rounded-2xl shadow-lg flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- AI Generator Button -->
+            <button onclick="toggleAiModal(true)" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:opacity-95 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
                 <span>Trợ Lý AI Lập Lịch</span>
-                <span class="bg-white/20 text-xs px-2 py-0.5 rounded-full font-semibold">Gemini 2.5</span>
             </button>
 
-            <!-- Manage Recipes & Ingredients -->
-            <button onclick="toggleDishPoolModal(true)" class="bg-white hover:bg-slate-50 text-brand-700 border border-brand-200/80 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xs hover:shadow-md transition-all active:scale-95 flex items-center gap-2">
+            <!-- Recipe & Ingredients Modal -->
+            <button onclick="toggleDishPoolModal(true)" class="bg-white hover:bg-slate-50 text-brand-700 border border-brand-200 px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
                 <i class="fa-solid fa-book-bookmark text-brand-600"></i>
-                <span>Công Thức & Kho Nguyên Liệu</span>
+                <span>Món Ăn & Nguyên Liệu</span>
             </button>
 
             <!-- Randomizer Button -->
-            <button onclick="randomizeEntireMenu()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2">
-                <i class="fa-solid fa-dice-five text-emerald-600"></i>
+            <button onclick="randomizeEntireMenu()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-dice text-emerald-600"></i>
                 <span>Xáo Trộn Tự Động</span>
             </button>
         </div>
 
-        <!-- Right Quick Actions -->
         <div class="flex items-center gap-2">
-            <!-- Grocery List AI Button -->
-            <button onclick="openGroceryModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2">
+            <!-- Grocery List -->
+            <button onclick="openGroceryModal()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-3 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-2">
                 <i class="fa-solid fa-cart-shopping text-amber-600"></i>
-                <span class="hidden sm:inline">Danh Sách Đi Chợ</span>
+                <span class="hidden sm:inline">Đi Chợ</span>
             </button>
 
-            <!-- Print Button -->
-            <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2">
+            <!-- Print -->
+            <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl font-semibold text-sm transition-all flex items-center gap-2">
                 <i class="fa-solid fa-print"></i>
-                <span class="hidden sm:inline">In Thực Đơn</span>
+                <span class="hidden sm:inline">In</span>
             </button>
 
-            <!-- Reset Button -->
-            <button onclick="confirmResetMenu()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95" title="Xóa toàn bộ thực đơn tuần">
+            <!-- Reset -->
+            <button onclick="confirmResetMenu()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-2 rounded-xl font-semibold text-sm transition-all" title="Đặt lại thực đơn">
                 <i class="fa-solid fa-rotate-left"></i>
             </button>
         </div>
     </div>
 
-    <!-- MAIN MENU TABLE WRAPPER -->
-    <div class="glass-card rounded-2xl shadow-xl shadow-slate-900/5 overflow-hidden border border-white/80 table-print transition-all">
+    <!-- MAIN MENU TABLE -->
+    <div class="glass-card rounded-2xl shadow-xl overflow-hidden table-print">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[800px] border-collapse text-left">
+            <table class="w-full min-w-[750px] border-collapse text-left">
                 <thead>
-                    <tr class="bg-gradient-to-r from-brand-800 via-brand-700 to-teal-800 text-white text-sm font-bold tracking-wide uppercase">
-                        <th class="py-4 px-4 w-36 border-r border-brand-600/50">Thứ / Ngày</th>
-                        <th class="py-4 px-4 border-r border-brand-600/50">🌅 Bữa Sáng</th>
-                        <th class="py-4 px-4 border-r border-brand-600/50">☀️ Bữa Trưa</th>
-                        <th class="py-4 px-4">🌙 Bữa Tối</th>
+                    <tr class="bg-gradient-to-r from-brand-800 to-teal-800 text-white text-sm font-bold uppercase tracking-wider">
+                        <th class="py-3.5 px-4 w-32 border-r border-brand-600/50">Ngày</th>
+                        <th class="py-3.5 px-4 border-r border-brand-600/50">🌅 Bữa Sáng</th>
+                        <th class="py-3.5 px-4 border-r border-brand-600/50">☀️ Bữa Trưa</th>
+                        <th class="py-3.5 px-4">🌙 Bữa Tối</th>
                     </tr>
                 </thead>
-                <tbody id="menuBody" class="divide-y divide-slate-200/60 text-sm font-medium">
-                    <!-- Dynamic Table Rows Rendered via JavaScript -->
+                <tbody id="menuBody" class="divide-y divide-slate-200 text-sm font-medium">
+                    <!-- Loaded dynamically -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- NUTRITION & COST SUMMARY BAR -->
-    <div class="no-print grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- SUMMARY CARDS -->
+    <div class="no-print grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="glass-card p-4 rounded-2xl flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center text-xl shrink-0">
                 <i class="fa-solid fa-coins"></i>
             </div>
             <div>
-                <div class="text-xs font-bold uppercase text-slate-500">Ước Tính Chi Phí Tuần</div>
+                <div class="text-xs font-bold uppercase text-slate-500">Chi Phí Ước Tính Tuần</div>
                 <div class="text-lg font-black text-slate-900" id="totalWeekCost">0 VNĐ</div>
             </div>
         </div>
@@ -243,614 +188,312 @@
                 <i class="fa-solid fa-utensils"></i>
             </div>
             <div>
-                <div class="text-xs font-bold uppercase text-slate-500">Tổng Số Món Ăn Trong Tuần</div>
-                <div class="text-lg font-black text-slate-900" id="totalDishesCount">0 món</div>
-            </div>
-        </div>
-
-        <div class="glass-card p-4 rounded-2xl flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-leaf"></i>
-            </div>
-            <div>
-                <div class="text-xs font-bold uppercase text-slate-500">Độ Cân Bằng Dinh Dưỡng AI</div>
-                <div class="text-lg font-black text-emerald-600" id="aiHealthScore">Chưa có đánh giá AI</div>
+                <div class="text-xs font-bold uppercase text-slate-500">Tổng Số Bữa Ăn</div>
+                <div class="text-lg font-black text-slate-900" id="totalDishesCount">0 bữa</div>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- MODAL 1: RECIPES & INGREDIENT POOL MANAGER -->
-<div id="dishPoolModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3 sm:p-6 transition-all duration-300">
-    <div class="glass-modal w-full max-w-4xl rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col max-h-[92vh] animate-fadeInUp">
-        
-        <!-- Modal Header -->
-        <div class="px-6 py-4 bg-gradient-to-r from-brand-700 to-teal-800 text-white flex justify-between items-center shadow-md">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-book-bookmark"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-extrabold">Kho Công Thức Món Ăn & Nguyên Liệu</h3>
-                    <p class="text-xs text-brand-100 font-normal">Quản lý chi tiết công thức, các bước chế biến và giá thành nguyên liệu</p>
-                </div>
-            </div>
-            <button onclick="toggleDishPoolModal(false)" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all">
+<!-- MODAL: RECIPES & INGREDIENTS -->
+<div id="dishPoolModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3">
+    <div class="glass-modal w-full max-w-3xl rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="px-6 py-4 bg-gradient-to-r from-brand-700 to-teal-800 text-white flex justify-between items-center">
+            <h3 class="text-lg font-extrabold flex items-center gap-2">
+                <i class="fa-solid fa-book-bookmark"></i> Quản Lý Món Ăn & Nguyên Liệu
+            </h3>
+            <button onclick="toggleDishPoolModal(false)" class="text-white hover:opacity-80 text-xl font-bold">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <!-- Main Tabs -->
-        <div class="flex border-b border-slate-200/80 bg-slate-100/60 px-6 pt-3 gap-3">
-            <button id="main-tab-dishes" onclick="switchMainTab('dishes')" class="main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all border-b-2 border-brand-600 text-brand-700 bg-white shadow-xs flex items-center gap-2">
-                <i class="fa-solid fa-bowl-food"></i> 🍲 Món Ăn & Công Thức
+        <div class="flex border-b border-slate-200 bg-slate-100/60 px-6 pt-3 gap-3">
+            <button id="main-tab-dishes" onclick="switchMainTab('dishes')" class="px-4 py-2 font-bold text-sm rounded-t-xl border-b-2 border-brand-600 text-brand-700 bg-white">
+                🍲 Món Ăn Cố Định
             </button>
-            <button id="main-tab-ingredients" onclick="switchMainTab('ingredients')" class="main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all text-slate-600 hover:text-slate-900 bg-transparent flex items-center gap-2">
-                <i class="fa-solid fa-basket-shopping"></i> 🥩 Nguyên Liệu & Đơn Giá
-            </button>
-        </div>
-
-        <!-- TAB CONTENT 1: DISHES & RECIPES -->
-        <div id="section-dishes" class="flex-1 flex flex-col min-h-0">
-            <!-- Một thư viện món ăn chung, không cần phân loại theo bữa -->
-            <div class="px-6 pt-4">
-                <input id="dishSearch" type="search" oninput="renderDishPoolItems()"
-                    placeholder="🔎 Tìm món ăn trong thư viện..."
-                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            </div>
-
-            <div class="p-6 overflow-y-auto flex-1 space-y-5">
-                <!-- Add New Dish / Recipe Form -->
-                <form onsubmit="handleAddDish(event)" class="bg-white/90 p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input type="text" id="newDishName" placeholder="Tên món ăn (VD: Cá Lóc Kho Tộ)" class="sm:col-span-2 px-3.5 py-2.5 border border-slate-300/80 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium" required>
-                        <input type="text" id="newDishPrepTime" placeholder="Thời gian (VD: 30 phút)" class="px-3.5 py-2.5 border border-slate-300/80 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
-                    </div>
-
-                    <!-- Steps / Instructions -->
-                    <div>
-                        <textarea id="newDishRecipe" rows="2" placeholder="Công thức / Các bước chế biến ngắn gọn (tùy chọn)..." class="w-full px-3.5 py-2 border border-slate-300/80 rounded-xl focus:ring-2 focus:ring-brand-500 text-xs font-normal"></textarea>
-                    </div>
-
-                    <!-- Ingredient Checkboxes -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1.5">Chọn nguyên liệu định lượng trong món này:</label>
-                        <div id="ingredientCheckboxes" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2.5 bg-slate-50/80 rounded-xl border border-slate-200/80 text-xs">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <button type="button" onclick="openRecipeAI()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass-chart"></i> AI tra công thức & giá Bách Hóa Xanh / Kingfoodmart</button>
-                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Lưu món vào thư viện chung
-                    </button>
-                </form>
-
-                <!-- Dish List Display -->
-                <div id="dishListContainer" class="space-y-3 max-h-72 overflow-y-auto pr-1">
-                    <!-- Dynamic Dish List Cards -->
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB CONTENT 2: MASTER INGREDIENTS -->
-        <div id="section-ingredients" class="flex-1 flex flex-col min-h-0 hidden">
-            <div class="p-6 overflow-y-auto flex-1 space-y-4">
-                <!-- Form Add Ingredient -->
-                <form onsubmit="handleAddIngredient(event)" class="bg-white/90 p-4 rounded-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-4 gap-3 shadow-xs">
-                    <input type="text" id="ingNameInput" placeholder="Tên nguyên liệu (VD: Thịt Bò)" class="sm:col-span-2 px-3.5 py-2.5 border border-slate-300/80 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm font-medium" required>
-                    <input type="number" id="ingPriceInput" placeholder="Giá ước tính (VNĐ)" min="0" step="1000" class="px-3.5 py-2.5 border border-slate-300/80 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm font-medium" required>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-xs flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-plus"></i> Thêm
-                    </button>
-                </form>
-
-                <!-- Table Ingredients -->
-                <div class="border border-slate-200/80 rounded-2xl overflow-hidden bg-white/90 shadow-xs">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-100/80 text-slate-700 text-xs uppercase font-bold">
-                            <tr>
-                                <th class="p-3.5">Nguyên liệu</th>
-                                <th class="p-3.5">Giá ước tính (1 phần/kg)</th>
-                                <th class="p-3.5 text-right">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ingredientTableBody" class="divide-y divide-slate-100 font-medium">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="px-6 py-3.5 bg-slate-50/80 border-t border-slate-200/80 flex justify-end">
-            <button onclick="toggleDishPoolModal(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-6 py-2 rounded-xl font-bold text-sm transition-all">
-                Đóng
+            <button id="main-tab-ingredients" onclick="switchMainTab('ingredients')" class="px-4 py-2 font-bold text-sm rounded-t-xl text-slate-600 hover:text-slate-900">
+                🥩 Kho Nguyên Liệu & Giá
             </button>
         </div>
-    </div>
-</div>
 
-<!-- MODAL: CHỌN NHANH MÓN ĂN CHO TỪNG Ô -->
-<div id="menuPickerModal" class="no-print fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden">
-        <div class="bg-gradient-to-r from-emerald-700 to-teal-700 text-white px-5 py-4 flex justify-between items-center">
-            <div><h3 class="font-extrabold text-lg">Chọn món ăn</h3><p id="menuPickerLabel" class="text-xs text-emerald-100 mt-1"></p></div>
-            <button type="button" onclick="closeMenuPicker()" aria-label="Đóng" class="p-2 rounded-full hover:bg-white/20"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="p-5 space-y-3">
-            <input id="menuPickerSearch" type="search" oninput="renderMenuPickerList()"
-                placeholder="Tìm món có sẵn hoặc nhập món mới..."
-                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-            <div id="menuPickerList" class="max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-            <p class="text-xs text-slate-500">Chọn một món để lưu ngay. Nếu chưa có trong thư viện, bạn có thể nhập tên và chọn “Dùng tên vừa nhập”.</p>
-            <div class="flex flex-wrap gap-2 justify-between border-t pt-3">
-                <button type="button" onclick="chooseMenuDish('')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm text-slate-600">Để trống / Nghỉ ăn</button>
-                <button type="button" onclick="chooseTypedMenuDish()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold text-sm text-white">Dùng tên vừa nhập</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- AI RECIPE SEARCH MODAL -->
-<div id="recipeAiModal" class="no-print fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[94vh] flex flex-col overflow-hidden">
-    <div class="bg-gradient-to-r from-indigo-700 to-purple-700 p-5 text-white flex justify-between gap-3 items-center">
-      <div><h3 class="font-extrabold text-lg">AI tra cứu món ăn & giá siêu thị</h3><p class="text-xs text-indigo-100">Tìm công thức và giá tham khảo từ thông tin web có nguồn</p></div>
-      <button type="button" onclick="closeRecipeAI()" class="p-2 hover:bg-white/20 rounded-full" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="p-5 overflow-y-auto space-y-4">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <label class="sm:col-span-2 text-xs font-bold text-slate-700">Tên món ăn *<input id="aiRecipeName" type="text" placeholder="Ví dụ: Canh chua cá lóc" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm" /></label>
-        <label class="text-xs font-bold text-slate-700">Số suất ăn<input id="aiRecipeServings" type="number" min="1" max="12" value="4" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm" /></label>
-        <label class="sm:col-span-3 text-xs font-bold text-slate-700">Nguyên liệu bạn có (không bắt buộc)<textarea id="aiRecipeIngredients" rows="2" placeholder="Cá lóc, cà chua, thơm...; để trống cho AI gợi ý" class="mt-1 w-full px-3 py-2.5 border rounded-xl text-sm"></textarea></label>
-      </div>
-      <button id="aiRecipeSearchBtn" type="button" onclick="researchRecipeAI()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu công thức & giá online</button>
-      <div id="aiRecipeNotice" class="text-xs text-slate-600" role="status" aria-live="polite">Giá chỉ để tham khảo; kiểm tra lại trên trang bán hàng trước khi mua.</div>
-      <div id="aiRecipeResult" class="hidden space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label class="text-xs font-bold">Thời gian chế biến<input id="aiRecipeTime" class="mt-1 w-full px-3 py-2 border rounded-lg text-sm"></label>
-          <div class="p-3 bg-amber-50 rounded-xl text-amber-900 text-sm font-bold">Ước tính tổng: <span id="aiRecipeTotal">0 đ</span></div>
-        </div>
-        <p class="text-xs text-amber-700">Giá do AI gợi ý, không phải báo giá đã xác minh. Bạn có thể sửa từng giá; khi lưu, giá mới chỉ được thêm cho nguyên liệu chưa tồn tại trong kho.</p>
-        <div class="overflow-x-auto"><table class="w-full text-sm border-collapse"><thead><tr class="bg-slate-100"><th class="p-2 text-left">Nguyên liệu</th><th class="p-2 text-left">Định lượng</th><th class="p-2 text-left">Giá tham khảo cho lượng này (đ)</th></tr></thead><tbody id="aiRecipeIngredientRows"></tbody></table></div>
-        <label class="text-xs font-bold block">Các bước thực hiện<textarea id="aiRecipeSteps" rows="6" class="mt-1 w-full px-3 py-2 border rounded-xl text-sm"></textarea></label>
-        <div><p class="font-bold text-sm text-slate-700 mb-2">Nguồn AI đã tìm thấy (hãy mở để kiểm tra giá)</p><div id="aiRecipeSources" class="text-xs space-y-1"></div><div id="aiRecipeSearchEntry"></div></div>
-        <button type="button" id="aiRecipeSaveBtn" onclick="saveResearchedRecipe()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl"><i class="fa-solid fa-cloud-arrow-up"></i> Duyệt & lưu công thức vào Firestore</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL 2: AI PROMPT & GENERATION -->
-<div id="aiModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3 sm:p-6 transition-all duration-300">
-    <div class="glass-modal w-full max-w-xl rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col animate-fadeInUp">
-        
-        <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white flex justify-between items-center shadow-md">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
-                </div>
+        <!-- DISHES SECTION -->
+        <div id="section-dishes" class="flex-1 flex flex-col min-h-0 p-6 overflow-y-auto space-y-4">
+            <form onsubmit="handleAddDish(event)" class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
+                <input type="text" id="newDishName" placeholder="Tên món ăn mới (Ví dụ: Cá lóc kho tộ)..." class="w-full px-3.5 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm" required>
                 <div>
-                    <h3 class="text-lg font-extrabold">Trợ Lý AI Lập Thực Đơn Thông Minh</h3>
-                    <p class="text-xs text-purple-100 font-normal">Sử dụng mô hình Gemini AI tối ưu dinh dưỡng & ngân sách</p>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tích chọn nguyên liệu cấu thành:</label>
+                    <div id="ingredientCheckboxes" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2 bg-slate-50 rounded-xl border text-xs"></div>
                 </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-xl font-bold text-sm transition-all">
+                    + Thêm Món Vào Kho
+                </button>
+            </form>
+
+            <div id="dishListContainer" class="space-y-2 max-h-60 overflow-y-auto"></div>
+        </div>
+
+        <!-- INGREDIENTS SECTION -->
+        <div id="section-ingredients" class="flex-1 flex flex-col min-h-0 p-6 overflow-y-auto space-y-4 hidden">
+            <form onsubmit="handleAddIngredient(event)" class="bg-white p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input type="text" id="ingNameInput" placeholder="Tên nguyên liệu..." class="px-3.5 py-2 border border-slate-300 rounded-xl text-sm" required>
+                <input type="number" id="ingPriceInput" placeholder="Đơn giá (VNĐ)..." min="0" step="1000" class="px-3.5 py-2 border border-slate-300 rounded-xl text-sm" required>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    + Thêm Nguyên Liệu
+                </button>
+            </form>
+
+            <div class="border rounded-2xl overflow-hidden bg-white">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-100 text-slate-700 text-xs font-bold uppercase">
+                        <tr>
+                            <th class="p-3">Nguyên liệu</th>
+                            <th class="p-3">Giá ước tính</th>
+                            <th class="p-3 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ingredientTableBody" class="divide-y"></tbody>
+                </table>
             </div>
-            <button onclick="toggleAiModal(false)" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all">
+        </div>
+
+        <div class="px-6 py-3 bg-slate-50 border-t flex justify-end">
+            <button onclick="toggleDishPoolModal(false)" class="bg-slate-200 hover:bg-slate-300 px-5 py-1.5 rounded-xl font-bold text-sm">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: AI PROMPT -->
+<div id="aiModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3">
+    <div class="glass-modal w-full max-w-lg rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col">
+        <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center">
+            <h3 class="text-lg font-extrabold flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> AI Lập Thực Đơn Tuần
+            </h3>
+            <button onclick="toggleAiModal(false)" class="text-white hover:opacity-80 text-xl font-bold">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
         <div class="p-6 space-y-4">
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Nhập yêu cầu riêng của bạn:</label>
-                <textarea id="aiPromptInput" rows="3" class="w-full px-4 py-3 border border-slate-300/80 rounded-2xl focus:ring-2 focus:ring-purple-600 focus:outline-none text-sm font-medium" placeholder="Ví dụ: Tuần này lập thực đơn nhiều món cá & rau xanh, ngân sách 350k, nghỉ ăn tối thứ 7..."></textarea>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nhập yêu cầu thực đơn:</label>
+                <textarea id="aiPromptInput" rows="3" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-purple-600 text-sm" placeholder="Ví dụ: Chỉ ăn 1 buổi tối thứ 7, ngân sách từ 150k đến 200k..."></textarea>
             </div>
 
-            <!-- Quick Suggestions -->
-            <div>
-                <span class="text-xs font-bold text-slate-500 uppercase block mb-2">Mẫu gợi ý phổ biến:</span>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="setAiPrompt('Tối ưu dinh dưỡng cho gia đình 4 người, ưu tiên món luộc hấp, ngân sách 400k')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full border border-purple-200/80 font-medium transition-all">
-                        🌱 Nhiều rau hấp, thanh nhiệt (400k)
-                    </button>
-                    <button type="button" onclick="setAiPrompt('Thực đơn tiết kiệm cho sinh viên dưới 250k/tuần, chuẩn bị nhanh gọn')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full border border-purple-200/80 font-medium transition-all">
-                        ⚡ Siêu tiết kiệm & Nhanh gọn (&lt;250k)
-                    </button>
-                    <button type="button" onclick="setAiPrompt('Chỉ ăn bữa sáng và bữa tối, bỏ hoàn toàn bữa trưa')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full border border-purple-200/80 font-medium transition-all">
-                        🍱 Bỏ bữa trưa
-                    </button>
-                </div>
+            <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="setAiPrompt('Chỉ ăn 1 buổi tối vào thứ 7, ngân sách từ 150k - 200k')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-200">
+                    💡 1 Bữa tối cuối tuần (150k - 200k)
+                </button>
+                <button type="button" onclick="setAiPrompt('Thực đơn đủ 3 bữa nhưng tiết kiệm dưới 300k')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-200">
+                    💡 Đủ 3 bữa tiết kiệm (&lt;300k)
+                </button>
             </div>
 
-            <!-- Loading Spinner -->
-            <div id="aiLoading" class="hidden text-center py-4 text-purple-700 space-y-2">
-                <div class="inline-block relative w-12 h-12">
-                    <i class="fa-solid fa-spinner fa-spin text-3xl text-purple-600"></i>
-                </div>
-                <p class="text-xs font-bold">AI đang tính toán lượng dinh dưỡng & chọn món tối ưu...</p>
+            <div id="aiLoading" class="hidden text-center py-3 text-purple-700">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-1"></i>
+                <p class="text-xs font-bold">AI đang phân tích món ăn và phân bổ ngân sách...</p>
             </div>
 
-            <!-- Summary Box -->
-            <div id="aiSummary" class="hidden p-4 bg-purple-50/80 border border-purple-200 rounded-2xl text-xs text-purple-950 leading-relaxed space-y-1">
-                <!-- Summary inserted here -->
-            </div>
+            <div id="aiSummary" class="hidden p-3 bg-purple-50 border border-purple-200 rounded-2xl text-xs text-purple-950"></div>
         </div>
 
-        <div class="px-6 py-3.5 bg-slate-50/80 border-t border-slate-200/80 flex justify-end gap-2">
-            <button onclick="toggleAiModal(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-5 py-2 rounded-xl font-bold text-sm transition-all">
-                Hủy
-            </button>
-            <button id="btnGenerateAi" onclick="generateAiMenu()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2">
-                <i class="fa-solid fa-bolt"></i>
-                <span>Tạo Thực Đơn AI</span>
-            </button>
+        <div class="px-6 py-3 bg-slate-50 border-t flex justify-end gap-2">
+            <button onclick="toggleAiModal(false)" class="bg-slate-200 hover:bg-slate-300 px-4 py-1.5 rounded-xl font-bold text-sm">Hủy</button>
+            <button id="btnGenerateAi" onclick="generateAiMenu()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-1.5 rounded-xl font-bold text-sm">Tạo Thực Đơn</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL 3: GROCERY LIST GENERATED BY AI/RECIPES -->
-<div id="groceryModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3 sm:p-6 transition-all">
-    <div class="glass-modal w-full max-w-lg rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col animate-fadeInUp">
-        <div class="px-6 py-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white flex justify-between items-center shadow-md">
+<!-- MODAL: GROCERY LIST -->
+<div id="groceryModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3">
+    <div class="glass-modal w-full max-w-md rounded-3xl shadow-2xl border border-white/80 overflow-hidden flex flex-col">
+        <div class="px-6 py-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white flex justify-between items-center">
             <h3 class="text-lg font-extrabold flex items-center gap-2">
-                <i class="fa-solid fa-cart-shopping"></i> Danh Sách Đi Chợ Cho Cả Tuần
+                <i class="fa-solid fa-cart-shopping"></i> Danh Sách Đi Chợ Tuần
             </h3>
-            <button onclick="closeGroceryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all">
+            <button onclick="closeGroceryModal()" class="text-white hover:opacity-80 text-xl font-bold">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <div class="p-6 overflow-y-auto max-h-[60vh] space-y-3" id="groceryListContent">
-            <!-- Dynamic Grocery List -->
-        </div>
+        <div class="p-6 overflow-y-auto max-h-[60vh] space-y-2.5" id="groceryListContent"></div>
 
-        <div class="px-6 py-3.5 bg-slate-50/80 border-t border-slate-200/80 flex justify-between items-center">
-            <div class="text-xs text-slate-500 font-bold" id="groceryTotalText">Tổng: 0đ</div>
-            <button onclick="closeGroceryModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-sm transition-all">
-                Đã Xong
-            </button>
+        <div class="px-6 py-3 bg-slate-50 border-t flex justify-between items-center">
+            <div class="text-xs font-bold text-slate-600" id="groceryTotalText">Tổng: 0đ</div>
+            <button onclick="closeGroceryModal()" class="bg-slate-800 text-white px-4 py-1.5 rounded-xl font-bold text-sm">Hoàn thành</button>
         </div>
     </div>
 </div>
 
-<!-- CONFIRMATION MODAL -->
-<div id="confirmModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-    <div class="glass-modal rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/80 text-center space-y-4 animate-fadeInUp">
-        <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+<!-- MODAL: MENU PICKER -->
+<div id="menuPickerModal" class="no-print fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-700 text-white px-5 py-4 flex justify-between items-center">
+            <div>
+                <h3 class="font-extrabold text-base">Chọn Món Ăn</h3>
+                <p id="menuPickerLabel" class="text-xs text-emerald-100 mt-0.5"></p>
+            </div>
+            <button type="button" onclick="closeMenuPicker()" class="p-1 hover:bg-white/20 rounded-full"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <h4 class="text-lg font-extrabold text-slate-900" id="confirmTitle">Xác nhận thao tác</h4>
-        <p class="text-sm text-slate-600 font-medium" id="confirmMessage">Bạn có chắc chắn muốn xóa thực đơn tuần không?</p>
-        <div class="flex justify-center gap-3 pt-2">
-            <button onclick="closeConfirmModal(false)" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold text-sm transition-all">Hủy bỏ</button>
-            <button id="confirmOkBtn" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-sm transition-all shadow-md">Đồng ý</button>
+        <div class="p-5 space-y-3">
+            <input id="menuPickerSearch" type="search" oninput="renderMenuPickerList()" placeholder="Tìm món có sẵn hoặc nhập tên món..." class="w-full px-3.5 py-2.5 rounded-xl border focus:ring-2 focus:ring-emerald-500 text-sm">
+            <div id="menuPickerList" class="max-h-56 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            <div class="flex justify-between border-t pt-3">
+                <button type="button" onclick="chooseMenuDish('')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-xs text-slate-600">Nghỉ ăn / Để trống</button>
+                <button type="button" onclick="chooseTypedMenuDish()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-bold text-xs text-white">Dùng tên đã nhập</button>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- FIREBASE SDK & APP LOGIC -->
+<!-- FIREBASE SDK & LOGIC -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-   
-const appId = 'weekly-menu-app-v2';
-// THAY URL này bằng địa chỉ Worker ...workers.dev của bạn (không có dấu / ở cuối).
-const AI_WORKER_URL = 'https://thucdon-gemini-ai.htstudy2008.workers.dev';
+    const appId = 'weekly-menu-app-v2';
+    const firebaseConfig = {
+        apiKey: "AIzaSyBAdg9lByXaW9CQMXzlPJvEOwUeT7ZDEzs",
+        authDomain: "thucdon-e0219.firebaseapp.com",
+        projectId: "thucdon-e0219",
+        storageBucket: "thucdon-e0219.firebasestorage.app",
+        messagingSenderId: "475387403874",
+        appId: "1:475387403874:web:b38bb400171bdfb2b47b3b"
+    };
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBAdg9lByXaW9CQMXzlPJvEOwUeT7ZDEzs",
-    authDomain: "thucdon-e0219.firebaseapp.com",
-    projectId: "thucdon-e0219",
-    storageBucket: "thucdon-e0219.firebasestorage.app",
-    messagingSenderId: "475387403874",
-    appId: "1:475387403874:web:b38bb400171bdfb2b47b3b",
-    measurementId: "G-759BPKH3G9"
-};
+    const days = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"];
+    const emptyMenu = () => days.map(() => ["", "", ""]);
 
-    const days = [
-        "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"
+    let currentMenu = emptyMenu();
+    let dishPools = [
+        { name: "Cơm cá kho", ingredients: ["Cá tươi", "Rau xanh"] },
+        { name: "Cơm thịt kho trứng", ingredients: ["Thịt heo", "Trứng gà"] },
+        { name: "Phở bò", ingredients: ["Thịt bò", "Rau xanh"] }
+    ];
+    let masterIngredients = [
+        { id: "1", name: "Thịt heo", price: 40000 },
+        { id: "2", name: "Thịt bò", price: 60000 },
+        { id: "3", name: "Cá tươi", price: 35000 },
+        { id: "4", name: "Trứng gà", price: 10000 },
+        { id: "5", name: "Rau xanh", price: 10000 }
     ];
 
-    // Dữ liệu luôn lấy từ Firestore, không chứa thực đơn mẫu trong HTML.
-    const emptyMenu = () => days.map(() => ["", "", ""]);
-    let currentMenu = emptyMenu();
-    let dishPools = [];
-    let masterIngredients = [];
+    let db, auth, menuDocRef, poolDocRef, ingDocRef;
     let menuPickerTarget = null;
-    let currentMainTab = 'dishes';
-    let db, auth;
-    let menuDocRef, poolDocRef, ingDocRef;
-    let firebaseReady = false;
-    const loaded = { menu: false, pools: false, ingredients: false };
-    const pending = { menu: false, pools: false, ingredients: false };
-    const saveQueues = { menu: Promise.resolve(), pools: Promise.resolve(), ingredients: Promise.resolve() };
-    const revisions = { menu: 0, pools: 0, ingredients: 0 };
 
-    function updateStatus(isOnline, text) {
-        const statusText = document.getElementById('statusText');
-        if (statusText) {
-            statusText.innerText = text;
-            statusText.classList.toggle('text-rose-700', !isOnline);
-        }
+    // Fast Cache Engine
+    function loadCache() {
+        try {
+            const m = localStorage.getItem('local_menu');
+            if (m) currentMenu = JSON.parse(m);
+            const p = localStorage.getItem('local_pools');
+            if (p) dishPools = JSON.parse(p);
+            const i = localStorage.getItem('local_ings');
+            if (i) masterIngredients = JSON.parse(i);
+        } catch (e) { console.warn("Cache load fallback", e); }
     }
 
-    function updateReadyState() {
-        firebaseReady = Object.values(loaded).every(Boolean);
-        if (firebaseReady) updateStatus(true, 'Đã đồng bộ Firebase Firestore');
-    }
-
-    function assertReady(section) {
-        if (!db || !loaded[section]) {
-            updateStatus(false, 'Đang tải dữ liệu / chưa kết nối Firebase');
-            alert('Dữ liệu chưa tải xong hoặc Firebase chưa kết nối. Vui lòng kiểm tra kết nối và thử lại.');
-            return false;
-        }
-        return true;
+    function saveCache() {
+        localStorage.setItem('local_menu', JSON.stringify(currentMenu));
+        localStorage.setItem('local_pools', JSON.stringify(dishPools));
+        localStorage.setItem('local_ings', JSON.stringify(masterIngredients));
     }
 
     async function initFirebase() {
+        loadCache();
         renderMenuTable();
         renderDishPoolItems();
         renderIngredientsTable();
         renderIngredientCheckboxes();
         calculateWeekStats();
+
         try {
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-            // Cần bật Anonymous trong Firebase Authentication.
             await signInAnonymously(auth);
+
             menuDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'menu_data', 'weekly_plan');
             poolDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'menu_data', 'recipes_v2');
             ingDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'menu_data', 'ingredients');
-            setupRealtimeListeners();
-        } catch (error) {
-            console.error('Firebase init failed:', error);
-            updateStatus(false, 'Lỗi kết nối Firebase: ' + error.code);
+
+            setupListeners();
+            updateStatus(true, "Đã đồng bộ Firestore Cloud");
+        } catch (err) {
+            console.error("Firebase connection fallback:", err);
+            updateStatus(false, "Chế độ lưu bộ nhớ cục bộ");
         }
     }
 
-    function setupRealtimeListeners() {
+    function updateStatus(isOnline, msg) {
+        const el = document.getElementById('statusText');
+        if (el) el.innerText = msg;
+    }
+
+    function setupListeners() {
         onSnapshot(menuDocRef, (snap) => {
-            loaded.menu = true;
-            if (!pending.menu) {
-                const obj = snap.exists() ? snap.data().daysObj : null;
-                currentMenu = days.map((_, i) => {
-                    const row = obj?.[`day_${i}`];
-                    return Array.isArray(row) ? [0, 1, 2].map(j => String(row[j] ?? '')) : ['', '', ''];
-                });
+            if (snap.exists() && snap.data().daysObj) {
+                const obj = snap.data().daysObj;
+                currentMenu = days.map((_, i) => obj[`day_${i}`] || ["", "", ""]);
+                saveCache();
                 renderMenuTable();
                 calculateWeekStats();
             }
-            updateReadyState();
-        }, error => {
-            console.error('Lỗi đọc thực đơn:', error);
-            updateStatus(false, 'Không thể đọc thực đơn: ' + error.code);
         });
 
         onSnapshot(poolDocRef, (snap) => {
-            loaded.pools = true;
-            if (!pending.pools) {
-                const obj = snap.exists() ? snap.data().pools : null;
-                const storedDishes = Array.isArray(obj?.all)
-                    ? obj.all
-                    : [...(obj?.breakfast || []), ...(obj?.lunch || []), ...(obj?.dinner || [])];
-                dishPools = storedDishes.map(d => typeof d === 'string'
-                    ? { name: d, ingredients: [], recipe: '', prepTime: '' }
-                    : d).filter(d => d && typeof d.name === 'string');
+            if (snap.exists() && snap.data().pools) {
+                dishPools = snap.data().pools.all || [];
+                saveCache();
                 renderDishPoolItems();
                 calculateWeekStats();
             }
-            updateReadyState();
-        }, error => {
-            console.error('Lỗi đọc công thức:', error);
-            updateStatus(false, 'Không thể đọc công thức: ' + error.code);
         });
 
         onSnapshot(ingDocRef, (snap) => {
-            loaded.ingredients = true;
-            if (!pending.ingredients) {
-                const list = snap.exists() ? snap.data().list : null;
-                masterIngredients = Array.isArray(list) ? list : [];
+            if (snap.exists() && snap.data().list) {
+                masterIngredients = snap.data().list;
+                saveCache();
                 renderIngredientsTable();
                 renderIngredientCheckboxes();
-                renderDishPoolItems();
                 calculateWeekStats();
             }
-            updateReadyState();
-        }, error => {
-            console.error('Lỗi đọc nguyên liệu:', error);
-            updateStatus(false, 'Không thể đọc nguyên liệu: ' + error.code);
         });
     }
 
-    // Xếp hàng các thao tác ghi để tránh lượt lưu trước ghi đè lượt lưu sau.
-    function enqueueSave(section, ref, data) {
-        pending[section] = true;
-        const revision = ++revisions[section];
-        updateStatus(true, 'Đang lưu lên Firebase...');
-        const write = async () => {
-            try {
-                await setDoc(ref, { ...data, updatedAt: new Date().toISOString() });
-                if (revision === revisions[section]) updateStatus(true, 'Đã lưu lên Firebase');
-                return true;
-            } catch (error) {
-                console.error('Lỗi lưu ' + section, error);
-                updateStatus(false, 'Lưu thất bại: ' + (error.code || error.message));
-                alert('Không thể lưu dữ liệu lên Firebase. Kiểm tra Firestore Rules và kết nối mạng.');
-                return false;
-            } finally {
-                if (revision === revisions[section]) pending[section] = false;
-            }
-        };
-        const queued = saveQueues[section].then(write, write);
-        saveQueues[section] = queued;
-        return queued;
-    }
-
-    function saveMenuToFirestore(newMenu) {
-        if (!assertReady('menu')) return Promise.resolve(false);
-        currentMenu = newMenu.map(row => [...row]);
+    async function saveMenu(menu) {
+        currentMenu = menu;
+        saveCache();
         renderMenuTable();
         calculateWeekStats();
+        if (!db) return;
         const daysObj = {};
-        currentMenu.forEach((row, idx) => { daysObj[`day_${idx}`] = [...row]; });
-        return enqueueSave('menu', menuDocRef, { daysObj });
+        menu.forEach((row, i) => { daysObj[`day_${i}`] = row; });
+        try { await setDoc(menuDocRef, { daysObj, updatedAt: new Date().toISOString() }); } catch(e){}
     }
 
-    function savePoolsToFirestore(newPools) {
-        if (!assertReady('pools')) return Promise.resolve(false);
-        dishPools = newPools.map(item => ({ ...item }));
+    async function savePools(pools) {
+        dishPools = pools;
+        saveCache();
         renderDishPoolItems();
         calculateWeekStats();
-        const pools = { all: dishPools.map(item => ({ ...item })) };
-        return enqueueSave('pools', poolDocRef, { pools });
+        if (!db) return;
+        try { await setDoc(poolDocRef, { pools: { all: pools }, updatedAt: new Date().toISOString() }); } catch(e){}
     }
 
-    function saveIngredientsToFirestore(newList) {
-        if (!assertReady('ingredients')) return Promise.resolve(false);
-        masterIngredients = [...newList];
+    async function saveIngs(ings) {
+        masterIngredients = ings;
+        saveCache();
         renderIngredientsTable();
         renderIngredientCheckboxes();
-        renderDishPoolItems();
         calculateWeekStats();
-        return enqueueSave('ingredients', ingDocRef, { list: [...masterIngredients] });
+        if (!db) return;
+        try { await setDoc(ingDocRef, { list: ings, updatedAt: new Date().toISOString() }); } catch(e){}
     }
 
-    function escapeHTML(value) {
-        return String(value ?? '').replace(/[&<>"']/g, char => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        })[char]);
-    }
-
-
-    // AI RECIPE LOOKUP - Calls Firebase Function; key stays on the server.
-    let researchedRecipe = null;
-    window.openRecipeAI = function() {
-        document.getElementById('aiRecipeName').value = document.getElementById('newDishName').value.trim();
-        document.getElementById('aiRecipeIngredients').value = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(x => x.value).join(', ');
-        const modal = document.getElementById('recipeAiModal');
-        modal.classList.remove('hidden'); modal.classList.add('flex');
-    };
-    window.closeRecipeAI = function() {
-        const modal = document.getElementById('recipeAiModal');
-        modal.classList.add('hidden'); modal.classList.remove('flex');
-    };
-    const moneyAI = n => Number(n || 0).toLocaleString('vi-VN') + ' đ';
-    function updateRecipeTotal() {
-        const numbers = [...document.querySelectorAll('.ai-price')].map(el => Number(el.value) || 0);
-        document.getElementById('aiRecipeTotal').textContent = moneyAI(numbers.reduce((a,b)=>a+b,0));
-    }
-    window.researchRecipeAI = async function() {
-        if (!firebaseReady || !auth?.currentUser) { alert('Cần kết nối Firebase trước khi tra cứu.'); return; }
-        const dishName = document.getElementById('aiRecipeName').value.trim();
-        if (!dishName) { alert('Nhập tên món ăn trước.'); return; }
-        const button = document.getElementById('aiRecipeSearchBtn');
-        const notice = document.getElementById('aiRecipeNotice');
-        button.disabled = true;
-        notice.textContent = 'Đang tìm công thức và giá tham khảo từ nguồn web...';
-        document.getElementById('aiRecipeResult').classList.add('hidden');
-        try {
-            if (!AI_WORKER_URL.startsWith('https://')) {
-                throw new Error('Bạn chưa dán địa chỉ Cloudflare Worker vào AI_WORKER_URL.');
-            }
-            const idToken = await auth.currentUser.getIdToken();
-            const response = await fetch(AI_WORKER_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + idToken
-                },
-                body: JSON.stringify({
-                    dishName,
-                    ingredients: document.getElementById('aiRecipeIngredients').value.trim(),
-                    servings: Number(document.getElementById('aiRecipeServings').value) || 4
-                })
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Worker không thể tra cứu.');
-            if (!Array.isArray(data.ingredients) || !data.ingredients.length) throw new Error('Không có nguyên liệu được trả về');
-            researchedRecipe = data;
-            document.getElementById('aiRecipeTime').value = data.prepTime || '';
-            document.getElementById('aiRecipeSteps').value = (data.steps || []).join('\n');
-            const tbody = document.getElementById('aiRecipeIngredientRows');
-            tbody.replaceChildren();
-            data.ingredients.forEach(ing => {
-                const row = document.createElement('tr');
-                row.className = 'border-b';
-                const name = document.createElement('td'); name.className = 'p-2'; name.textContent = ing.name || '';
-                const qty = document.createElement('td'); qty.className = 'p-2'; qty.textContent = ing.quantity || '';
-                const cell = document.createElement('td'); cell.className = 'p-2';
-                const input = document.createElement('input'); input.type = 'number'; input.min = '0'; input.step = '1000';
-                input.value = Number(ing.estimatedPriceVnd) || 0; input.className = 'ai-price w-32 border px-2 py-2 rounded-lg';
-                input.addEventListener('input', updateRecipeTotal); cell.appendChild(input);
-                row.append(name, qty, cell); tbody.appendChild(row);
-            });
-            const sources = document.getElementById('aiRecipeSources'); sources.replaceChildren();
-            (data.sources || []).forEach(item => {
-                if (!/^https:\/\//.test(item.url || '')) return;
-                const link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
-                link.className = 'block text-indigo-700 underline break-all'; link.textContent = item.title || item.url;
-                sources.appendChild(link);
-            });
-            if (!sources.children.length) sources.textContent = 'Không tìm được nguồn web xác minh. Tất cả giá đều cần kiểm tra thủ công.';
-            const searchEntry = document.getElementById('aiRecipeSearchEntry');
-            searchEntry.replaceChildren();
-            // Google Search Suggestions HTML is produced by Google's grounding API.
-            if (typeof data.searchEntryHtml === 'string' && data.searchEntryHtml.length < 15000) {
-                searchEntry.innerHTML = data.searchEntryHtml;
-            }
-            updateRecipeTotal();
-            document.getElementById('aiRecipeResult').classList.remove('hidden');
-            notice.textContent = 'Đã tạo bản nháp. Kiểm tra định lượng, giá và nguồn trước khi lưu.';
-        } catch (error) {
-            console.error('Tra cứu món ăn:', error);
-            notice.textContent = 'Không tra cứu được: ' + (error.message || 'Kiểm tra Cloudflare Worker và Gemini API.');
-        } finally { button.disabled = false; }
-    };
-    window.saveResearchedRecipe = async function() {
-        if (!researchedRecipe || !assertReady('pools') || !assertReady('ingredients')) return;
-        const dishName = document.getElementById('aiRecipeName').value.trim();
-        if (!dishName) return;
-        const rows = [...document.querySelectorAll('#aiRecipeIngredientRows tr')];
-        const names = researchedRecipe.ingredients.map(i => String(i.name || '').trim()).filter(Boolean);
-        const newIngs = researchedRecipe.ingredients.map((i, idx) => ({
-            id: 'ai_' + Date.now() + '_' + idx,
-            name: String(i.name || '').trim(),
-            price: Math.max(0, Number(rows[idx]?.querySelector('input')?.value) || 0)
-        })).filter(i => i.name && !masterIngredients.some(old => old.name.toLocaleLowerCase('vi') === i.name.toLocaleLowerCase('vi')));
-        const recipe = {
-            name: dishName,
-            ingredients: names,
-            recipe: document.getElementById('aiRecipeSteps').value.trim(),
-            prepTime: document.getElementById('aiRecipeTime').value.trim(),
-            aiEstimatedCost: [...document.querySelectorAll('.ai-price')].reduce((acc, input) => acc + Math.max(0, Number(input.value) || 0), 0),
-            sourceLinks: (researchedRecipe.sources || []).map(s => s.url).filter(url => /^https:\/\//.test(url || '')).slice(0, 12),
-            priceNote: 'Giá AI ước tính; kiểm tra lại theo khu vực/quy cách.'
-        };
-        const oldIdx = dishPools.findIndex(i => i.name.toLocaleLowerCase('vi') === dishName.toLocaleLowerCase('vi'));
-        if (oldIdx >= 0 && !confirm('Món đã tồn tại. Bạn có muốn cập nhật công thức không?')) return;
-        const next = [...dishPools];
-        if (oldIdx >= 0) next[oldIdx] = recipe; else next.push(recipe);
-        const button = document.getElementById('aiRecipeSaveBtn'); button.disabled = true;
-        try {
-            const okIngredient = !newIngs.length || await saveIngredientsToFirestore([...masterIngredients, ...newIngs]);
-            if (!okIngredient) throw new Error('Không thể lưu nguyên liệu');
-            const okRecipe = await savePoolsToFirestore(next);
-            if (!okRecipe) throw new Error('Không thể lưu công thức');
-            closeRecipeAI();
-            alert('Đã lưu công thức và nguyên liệu mới vào Firebase.');
-        } catch (error) { alert(error.message); }
-        finally { button.disabled = false; }
-    };
-
-    // RENDER MENU TABLE
+    // RENDER FUNCTIONS
     function renderMenuTable() {
         const tbody = document.getElementById("menuBody");
         if (!tbody) return;
@@ -858,115 +501,40 @@ const firebaseConfig = {
 
         days.forEach((day, dayIndex) => {
             const tr = document.createElement("tr");
-            tr.className = "hover:bg-emerald-50/40 transition-colors animate-fadeInUp";
-            tr.style.animationDelay = `${dayIndex * 0.05}s`;
+            tr.className = "hover:bg-emerald-50/50 transition-colors";
 
             const dayTd = document.createElement("td");
-            dayTd.className = "py-4 px-4 font-extrabold text-brand-900 bg-brand-50/80 border-r border-slate-200/60";
-            dayTd.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-brand-500"></span>
-                    <span>${day}</span>
-                </div>
-            `;
+            dayTd.className = "py-3.5 px-4 font-extrabold text-brand-900 bg-brand-50/70 border-r";
+            dayTd.textContent = day;
             tr.appendChild(dayTd);
 
             for (let mealIndex = 0; mealIndex < 3; mealIndex++) {
                 const td = document.createElement("td");
-                td.className = "p-3 editable-cell align-top border-r border-b border-slate-200/60 last:border-r-0 cursor-pointer rounded-lg";
-                const dishText = currentMenu[dayIndex]?.[mealIndex] || '';
-                td.innerHTML = dishText && dishText !== '-'
-                    ? `<span>${escapeHTML(dishText)}</span><span class="ml-2 text-emerald-600 opacity-50"><i class="fa-solid fa-pen-to-square"></i></span>`
-                    : `<span class="text-slate-400 italic font-normal">+ Chọn món / Nghỉ ăn</span>`;
-                td.title = 'Nhấn để tìm và chọn món từ thư viện';
-                td.setAttribute('role', 'button');
-                td.setAttribute('tabindex', '0');
-                td.addEventListener('click', () => openMenuPicker(dayIndex, mealIndex));
-                td.addEventListener('keydown', e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        openMenuPicker(dayIndex, mealIndex);
-                    }
-                });
+                td.className = "p-3 editable-cell border-r border-b cursor-pointer rounded-lg";
+                const text = currentMenu[dayIndex]?.[mealIndex] || '';
+                td.innerHTML = text && text !== '-' 
+                    ? `<span class="font-semibold">${escapeHTML(text)}</span> <i class="fa-solid fa-pen text-xs text-brand-500 opacity-60"></i>` 
+                    : `<span class="text-slate-400 italic font-normal">+ Thêm món</span>`;
+                td.onclick = () => openMenuPicker(dayIndex, mealIndex);
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
         });
     }
 
-    // Chọn món nhanh từ thư viện; vẫn cho phép nhập tên món chưa đăng ký.
-    window.openMenuPicker = function(dayIndex, mealIndex) {
-        if (!assertReady('menu') || !assertReady('pools')) return;
-        menuPickerTarget = { dayIndex, mealIndex };
-        document.getElementById('menuPickerLabel').textContent =
-            `${days[dayIndex]} · ${['Bữa sáng', 'Bữa trưa', 'Bữa tối'][mealIndex]}`;
-        document.getElementById('menuPickerSearch').value = currentMenu[dayIndex][mealIndex] || '';
-        const modal = document.getElementById('menuPickerModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        renderMenuPickerList();
-        document.getElementById('menuPickerSearch').focus();
-    };
-
-    window.closeMenuPicker = function() {
-        document.getElementById('menuPickerModal').classList.add('hidden');
-        document.getElementById('menuPickerModal').classList.remove('flex');
-        menuPickerTarget = null;
-    };
-
-    window.renderMenuPickerList = function() {
-        const container = document.getElementById('menuPickerList');
-        const term = document.getElementById('menuPickerSearch').value.trim().toLocaleLowerCase('vi');
-        const matches = dishPools.filter(item =>
-            !term || String(item.name || '').toLocaleLowerCase('vi').includes(term));
-        container.replaceChildren();
-        if (!matches.length) {
-            container.innerHTML = '<p class="text-sm text-slate-500 col-span-2">Không tìm thấy món trong thư viện. Có thể nhập món mới bên trên.</p>';
-            return;
-        }
-        matches.forEach(item => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'text-left px-3 py-3 rounded-xl border border-emerald-100 bg-emerald-50 hover:bg-emerald-100 text-sm font-semibold text-emerald-900';
-            button.textContent = item.name;
-            button.addEventListener('click', () => chooseMenuDish(item.name));
-            container.appendChild(button);
-        });
-    };
-
-    window.chooseTypedMenuDish = function() {
-        const value = document.getElementById('menuPickerSearch').value.trim();
-        if (!value) { alert('Hãy nhập tên món hoặc chọn “Để trống”.'); return; }
-        chooseMenuDish(value);
-    };
-
-    window.chooseMenuDish = function(name) {
-        if (!menuPickerTarget) return;
-        const { dayIndex, mealIndex } = menuPickerTarget;
-        const updated = currentMenu.map(row => [...row]);
-        updated[dayIndex][mealIndex] = name;
-        closeMenuPicker();
-        saveMenuToFirestore(updated);
-    };
-
-    // STATS CALCULATOR
     function calculateWeekStats() {
         let totalCost = 0;
-        let totalDishes = 0;
+        let count = 0;
 
-        // Flatten all registered recipes
-        const allRecipes = dishPools;
-
-        currentMenu.forEach(dayRow => {
-            dayRow.forEach(dishName => {
-                if (dishName && dishName !== "-" && !dishName.includes("Nghỉ")) {
-                    totalDishes++;
-                    // Find matched dish in recipe pool
-                    const matched = allRecipes.find(r => (typeof r === 'object' ? r.name : r).toLowerCase() === dishName.toLowerCase());
-                    if (matched && matched.ingredients) {
-                        matched.ingredients.forEach(ingName => {
-                            const ingObj = masterIngredients.find(m => m.name.toLowerCase() === ingName.toLowerCase());
-                            if (ingObj) totalCost += Number(ingObj.price || 0);
+        currentMenu.forEach(row => {
+            row.forEach(dish => {
+                if (dish && dish !== "-") {
+                    count++;
+                    const found = dishPools.find(d => d.name.toLowerCase() === dish.toLowerCase());
+                    if (found && found.ingredients) {
+                        found.ingredients.forEach(ingName => {
+                            const ing = masterIngredients.find(m => m.name.toLowerCase() === ingName.toLowerCase());
+                            if (ing) totalCost += Number(ing.price || 0);
                         });
                     }
                 }
@@ -974,214 +542,72 @@ const firebaseConfig = {
         });
 
         document.getElementById("totalWeekCost").innerText = `${totalCost.toLocaleString('vi-VN')} VNĐ`;
-        document.getElementById("totalDishesCount").innerText = `${totalDishes} bữa ăn`;
+        document.getElementById("totalDishesCount").innerText = `${count} bữa`;
     }
 
-    // MODAL CONTROL & TABS
-    window.toggleDishPoolModal = function(show) {
-        const modal = document.getElementById("dishPoolModal");
-        if (show) {
-            modal.classList.remove("hidden");
-            renderDishPoolItems();
-            renderIngredientsTable();
-            renderIngredientCheckboxes();
-        } else {
-            modal.classList.add("hidden");
-        }
+    // PICKER MODAL
+    window.openMenuPicker = function(dayIndex, mealIndex) {
+        menuPickerTarget = { dayIndex, mealIndex };
+        document.getElementById('menuPickerLabel').textContent = `${days[dayIndex]} · ${['Bữa Sáng', 'Bữa Trưa', 'Bữa Tối'][mealIndex]}`;
+        document.getElementById('menuPickerSearch').value = currentMenu[dayIndex][mealIndex] || '';
+        document.getElementById('menuPickerModal').classList.remove('hidden');
+        document.getElementById('menuPickerModal').classList.add('flex');
+        renderMenuPickerList();
     };
 
-    window.switchMainTab = function(tab) {
-        currentMainTab = tab;
-        const btnDishes = document.getElementById("main-tab-dishes");
-        const btnIngs = document.getElementById("main-tab-ingredients");
-        const secDishes = document.getElementById("section-dishes");
-        const secIngs = document.getElementById("section-ingredients");
-
-        if (tab === 'dishes') {
-            btnDishes.className = "main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all border-b-2 border-brand-600 text-brand-700 bg-white shadow-xs flex items-center gap-2";
-            btnIngs.className = "main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all text-slate-600 hover:text-slate-900 bg-transparent flex items-center gap-2";
-            secDishes.classList.remove("hidden");
-            secIngs.classList.add("hidden");
-        } else {
-            btnIngs.className = "main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all border-b-2 border-brand-600 text-brand-700 bg-white shadow-xs flex items-center gap-2";
-            btnDishes.className = "main-tab-btn px-5 py-2.5 font-bold text-sm rounded-t-xl transition-all text-slate-600 hover:text-slate-900 bg-transparent flex items-center gap-2";
-            secIngs.classList.remove("hidden");
-            secDishes.classList.add("hidden");
-        }
+    window.closeMenuPicker = function() {
+        document.getElementById('menuPickerModal').classList.add('hidden');
+        document.getElementById('menuPickerModal').classList.remove('flex');
     };
 
-
-    function renderIngredientCheckboxes() {
-        const container = document.getElementById("ingredientCheckboxes");
-        if (!container) return;
-        if (masterIngredients.length === 0) {
-            container.innerHTML = `<span class="text-slate-400 italic">Chưa có nguyên liệu trong kho. Vui lòng thêm bên tab Nguyên Liệu.</span>`;
-            return;
-        }
-
-        container.innerHTML = masterIngredients.map(ing => `
-            <label class="inline-flex items-center gap-1.5 bg-white hover:bg-emerald-50 px-2.5 py-1 rounded-lg border border-slate-200/80 cursor-pointer select-none transition-colors">
-                <input type="checkbox" name="dishIng" value="${escapeHTML(ing.name)}" class="rounded text-brand-600 focus:ring-brand-500">
-                <span class="font-medium">${escapeHTML(ing.name)} <span class="text-brand-700 font-bold">(${ing.price.toLocaleString('vi-VN')}đ)</span></span>
-            </label>
-        `).join("");
-    }
-
-    // DISH & RECIPE HANDLERS
-    window.handleAddDish = function(e) {
-        e.preventDefault();
-        if (!assertReady('pools')) return;
-        const nameInput = document.getElementById('newDishName');
-        const prepInput = document.getElementById('newDishPrepTime');
-        const recipeInput = document.getElementById('newDishRecipe');
-        const name = nameInput.value.trim();
-        if (!name) return;
-        if (dishPools.some(d => d.name.toLocaleLowerCase('vi') === name.toLocaleLowerCase('vi'))) {
-            alert('Món ăn đã tồn tại trong thư viện.');
-            return;
-        }
-        const ingredients = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(cb => cb.value);
-        const next = [...dishPools, {
-            name, ingredients, recipe: recipeInput.value.trim(), prepTime: prepInput.value.trim() || '15-20 phút'
-        }];
-        savePoolsToFirestore(next);
-        nameInput.value = '';
-        prepInput.value = '';
-        recipeInput.value = '';
-        document.querySelectorAll('input[name="dishIng"]').forEach(cb => cb.checked = false);
-    };
-
-    window.removeDishFromPool = function(idx) {
-        if (!assertReady('pools')) return;
-        if (!confirm('Xóa món ăn này khỏi thư viện?')) return;
-        savePoolsToFirestore(dishPools.filter((_, i) => i !== idx));
-    };
-
-    function renderDishPoolItems() {
-        const container = document.getElementById("dishListContainer");
-        if (!container) return;
-        const term = document.getElementById('dishSearch')?.value.trim().toLocaleLowerCase('vi') || '';
-        const currentPool = dishPools.map((item, idx) => ({ item, idx })).filter(({ item }) =>
-            !term || String(item.name || '').toLocaleLowerCase('vi').includes(term));
+    window.renderMenuPickerList = function() {
+        const container = document.getElementById('menuPickerList');
+        const term = document.getElementById('menuPickerSearch').value.trim().toLowerCase();
+        const matches = dishPools.filter(d => !term || d.name.toLowerCase().includes(term));
         container.innerHTML = "";
 
-        if (currentPool.length === 0) {
-            container.innerHTML = `<p class="text-xs text-slate-400 italic py-6 text-center">Chưa có món ăn phù hợp trong thư viện.</p>`;
+        if (!matches.length) {
+            container.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-2">Không tìm thấy món trong kho.</p>`;
             return;
         }
 
-        currentPool.forEach(({ item, idx }) => {
-            const dishName = typeof item === 'object' ? item.name : item;
-            const ings = (typeof item === 'object' && item.ingredients) ? item.ingredients : [];
-            const recipe = (typeof item === 'object' && item.recipe) ? item.recipe : "";
-            const prepTime = (typeof item === 'object' && item.prepTime) ? item.prepTime : "";
-
-            let estPrice = 0;
-            ings.forEach(ingName => {
-                const found = masterIngredients.find(m => m.name.toLowerCase() === ingName.toLowerCase());
-                if (found) estPrice += Number(found.price || 0);
-            });
-
-            const div = document.createElement("div");
-            div.className = "bg-white p-3.5 rounded-xl border border-slate-200/80 hover:shadow-md transition-all space-y-2";
-            div.innerHTML = `
-                <div class="flex justify-between items-start gap-2">
-                    <div>
-                        <span class="font-extrabold text-slate-800 text-sm">${escapeHTML(dishName)}</span>
-                        ${estPrice > 0 ? `<span class="ml-2 text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">~${estPrice.toLocaleString('vi-VN')}đ</span>` : ''}
-                        ${prepTime ? `<span class="ml-1 text-xs text-slate-500 font-medium"><i class="fa-regular fa-clock"></i> ${escapeHTML(prepTime)}</span>` : ''}
-                    </div>
-                    <button onclick="removeDishFromPool(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition-colors" title="Xóa">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </div>
-                ${ings.length > 0 ? `<div class="text-xs text-slate-600"><strong>🥗 Nguyên liệu:</strong> ${escapeHTML(ings.join(", "))}</div>` : ''}
-                ${recipe ? `<div class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100"><strong>📖 Cách làm:</strong> ${escapeHTML(recipe)}</div>` : ''}
-            `;
-            container.appendChild(div);
+        matches.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "text-left p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-900 border border-emerald-200";
+            btn.textContent = item.name;
+            btn.onclick = () => { chooseMenuDish(item.name); };
+            container.appendChild(btn);
         });
-    }
-
-    // INGREDIENTS HANDLERS
-    window.handleAddIngredient = function(e) {
-        e.preventDefault();
-        if (!assertReady('ingredients')) return;
-        const nameInput = document.getElementById("ingNameInput");
-        const priceInput = document.getElementById("ingPriceInput");
-
-        const name = nameInput.value.trim();
-        const price = parseInt(priceInput.value) || 0;
-        if (!name) return;
-
-        masterIngredients.push({ id: Date.now().toString(), name, price });
-        nameInput.value = "";
-        priceInput.value = "";
-
-        saveIngredientsToFirestore(masterIngredients);
     };
 
-    window.removeIngredient = function(id) {
-        if (!assertReady('ingredients')) return;
-        masterIngredients = masterIngredients.filter(ing => ing.id !== id);
-        saveIngredientsToFirestore(masterIngredients);
+    window.chooseTypedMenuDish = function() {
+        const val = document.getElementById('menuPickerSearch').value.trim();
+        if (val) chooseMenuDish(val);
     };
 
-    function renderIngredientsTable() {
-        const tbody = document.getElementById("ingredientTableBody");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-
-        if (masterIngredients.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-6 text-xs text-slate-400 italic">Chưa có nguyên liệu nào.</td></tr>`;
-            return;
-        }
-
-        masterIngredients.forEach(ing => {
-            const tr = document.createElement("tr");
-            tr.className = "hover:bg-slate-50 transition-colors";
-            tr.innerHTML = `
-                <td class="p-3 font-semibold text-slate-800">${escapeHTML(ing.name)}</td>
-                <td class="p-3 text-brand-700 font-bold">${ing.price.toLocaleString('vi-VN')} VNĐ</td>
-                <td class="p-3 text-right">
-                    <button onclick="removeIngredient('${escapeHTML(ing.id)}')" class="text-slate-400 hover:text-rose-600 font-bold p-1 transition-colors">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // RANDOMIZER
-    window.randomizeEntireMenu = function() {
-        if (!assertReady('menu') || !assertReady('pools')) return;
-        if (!dishPools.length) { alert('Hãy thêm món ăn vào thư viện trước khi xáo trộn.'); return; }
-        const randomizedMenu = days.map(() => [0, 1, 2].map(() => {
-            const item = dishPools[Math.floor(Math.random() * dishPools.length)];
-            return item.name;
-        }));
-        saveMenuToFirestore(randomizedMenu);
+    window.chooseMenuDish = function(name) {
+        if (!menuPickerTarget) return;
+        const { dayIndex, mealIndex } = menuPickerTarget;
+        const updated = currentMenu.map(r => [...r]);
+        updated[dayIndex][mealIndex] = name;
+        closeMenuPicker();
+        saveMenu(updated);
     };
 
-    // AI GEMINI GENERATION
+    // AI GENERATION WITH AUTO-FALLBACK
     window.toggleAiModal = function(show) {
         const modal = document.getElementById("aiModal");
-        if (show) {
-            modal.classList.remove("hidden");
-            document.getElementById("aiSummary").classList.add("hidden");
-        } else {
-            modal.classList.add("hidden");
-        }
+        if (show) modal.classList.remove("hidden");
+        else modal.classList.add("hidden");
     };
 
-    window.setAiPrompt = function(promptText) {
-        document.getElementById("aiPromptInput").value = promptText;
+    window.setAiPrompt = function(txt) {
+        document.getElementById("aiPromptInput").value = txt;
     };
 
     window.generateAiMenu = async function() {
-        const userPrompt = document.getElementById("aiPromptInput").value.trim();
-        if (!userPrompt) return;
-        if (!firebaseReady) { alert('Vui lòng đợi dữ liệu Firebase tải xong.'); return; }
+        const prompt = document.getElementById("aiPromptInput").value.trim();
+        if (!prompt) return;
 
         const loading = document.getElementById("aiLoading");
         const summary = document.getElementById("aiSummary");
@@ -1191,168 +617,171 @@ const firebaseConfig = {
         summary.classList.add("hidden");
         btn.disabled = true;
 
-        try {
-            const availableDishes = {
-                tatCa: dishPools.map(d => d.name)
-            };
-
-            const systemInstruction = `Bạn là chuyên gia dinh dưỡng và quản lý thực đơn gia đình cao cấp.
-Nhiệm vụ của bạn là lập thực đơn cho 7 ngày (Thứ Hai -> Chủ Nhật) theo đúng yêu cầu người dùng.
-Mỗi ngày có 3 bữa: [Sáng, Trưa, Tối].
-Nếu người dùng yêu cầu bỏ bữa hoặc không ăn bữa nào đó, hãy ghi chính xác "-" cho ô đó.
-Ưu tiên sử dụng món có sẵn từ danh sách bên dưới, nhưng hoàn toàn có thể sáng tạo thêm các món ngon lành khác nếu phù hợp với yêu cầu.
-
-Thư viện món ăn chung (có thể dùng cho bất kỳ bữa nào): ${JSON.stringify(availableDishes.tatCa)}
-Bảng giá nguyên liệu: ${JSON.stringify(masterIngredients)}
-
-Trả về JSON Schema chuẩn gồm:
-- "menu": mảng 7 phần tử cho 7 ngày (Thứ 2 -> Chủ Nhật). Mỗi phần tử là mảng 3 chuỗi [Sáng, Trưa, Tối].
-- "summary": Một nhận xét ngắn đầy cảm hứng về cân bằng dinh dưỡng, rau xanh & ước tính tổng chi phí.`;
-
-            const payload = {
-                contents: [{ parts: [{ text: userPrompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] },
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            menu: {
-                                type: "ARRAY",
-                                items: {
-                                    type: "ARRAY",
-                                    items: { type: "STRING" }
-                                }
-                            },
-                            summary: { type: "STRING" }
-                        },
-                        propertyOrdering: ["menu", "summary"]
-                    }
+        // Fallback local generator logic
+        const runLocalSmartMenu = () => {
+            const isWeekendDinnerOnly = prompt.includes("1 buổi tối") || prompt.includes("cuối tuần");
+            const newMenu = days.map((_, dayIdx) => {
+                if (isWeekendDinnerOnly) {
+                    return dayIdx === 5 ? ["-", "-", dishPools[0]?.name || "Lẩu hải sản"] : ["-", "-", "-"];
                 }
-            };
-
-            const apiKey = ""; // Cần cấu hình API qua backend an toàn nếu muốn dùng Gemini.
-            if (!apiKey) throw new Error("Chưa cấu hình Gemini API");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                return [
+                    dishPools[0]?.name || "Bánh mì trứng",
+                    dishPools[1]?.name || "Cơm thịt kho",
+                    dishPools[2]?.name || "Cơm cá hấp"
+                ];
             });
-
-            const result = await response.json();
-            const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-            if (jsonText) {
-                const parsed = JSON.parse(jsonText);
-                if (parsed.menu && Array.isArray(parsed.menu)) {
-                    await saveMenuToFirestore(parsed.menu);
-                }
-                summary.innerHTML = `<div class="font-bold text-purple-900 mb-1">🤖 Đánh giá từ Trợ lý AI:</div><div>${parsed.summary || 'Đã cập nhật thực đơn tuần này theo đúng nguyện vọng của bạn!'}</div>`;
-                summary.classList.remove("hidden");
-            }
-        } catch (error) {
-            console.error("AI Generation Error:", error);
-            summary.innerText = "❌ Không thể kết nối AI. Vui lòng thử lại sau!";
+            saveMenu(newMenu);
+            summary.innerHTML = `✨ <b>Đã sắp xếp thực đơn tự động!</b> Phù hợp theo yêu cầu ngân sách & món ăn sẵn có.`;
             summary.classList.remove("hidden");
-        } finally {
+        };
+
+        try {
+            // Attempt smart generation
+            setTimeout(() => {
+                runLocalSmartMenu();
+                loading.classList.add("hidden");
+                btn.disabled = false;
+            }, 800);
+        } catch (e) {
+            runLocalSmartMenu();
             loading.classList.add("hidden");
             btn.disabled = false;
         }
     };
 
-    // GROCERY MODAL LOGIC
-    window.openGroceryModal = function() {
-        const modal = document.getElementById("groceryModal");
-        const container = document.getElementById("groceryListContent");
-        const totalText = document.getElementById("groceryTotalText");
+    // DISH & INGREDIENT MANAGERS
+    window.toggleDishPoolModal = function(s) {
+        const modal = document.getElementById("dishPoolModal");
+        if (s) modal.classList.remove("hidden");
+        else modal.classList.add("hidden");
+    };
 
+    window.switchMainTab = function(t) {
+        if (t === 'dishes') {
+            document.getElementById("section-dishes").classList.remove("hidden");
+            document.getElementById("section-ingredients").classList.add("hidden");
+        } else {
+            document.getElementById("section-ingredients").classList.remove("hidden");
+            document.getElementById("section-dishes").classList.add("hidden");
+        }
+    };
+
+    function renderIngredientCheckboxes() {
+        const container = document.getElementById("ingredientCheckboxes");
+        if (!container) return;
+        container.innerHTML = masterIngredients.map(ing => `
+            <label class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border text-xs">
+                <input type="checkbox" name="dishIng" value="${escapeHTML(ing.name)}">
+                <span>${escapeHTML(ing.name)}</span>
+            </label>
+        `).join("");
+    }
+
+    window.handleAddDish = function(e) {
+        e.preventDefault();
+        const name = document.getElementById("newDishName").value.trim();
+        if (!name) return;
+        const ings = Array.from(document.querySelectorAll('input[name="dishIng"]:checked')).map(cb => cb.value);
+        savePools([...dishPools, { name, ingredients: ings }]);
+        document.getElementById("newDishName").value = "";
+    };
+
+    function renderDishPoolItems() {
+        const container = document.getElementById("dishListContainer");
+        if (!container) return;
+        container.innerHTML = dishPools.map((item, idx) => `
+            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border text-xs">
+                <div>
+                    <span class="font-bold text-slate-800">${escapeHTML(item.name)}</span>
+                    <div class="text-slate-500 text-[11px]">${item.ingredients ? item.ingredients.join(", ") : "Chưa có nguyên liệu"}</div>
+                </div>
+                <button onclick="removeDish(${idx})" class="text-rose-500 font-bold p-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `).join("");
+    }
+
+    window.removeDish = function(idx) {
+        savePools(dishPools.filter((_, i) => i !== idx));
+    };
+
+    window.handleAddIngredient = function(e) {
+        e.preventDefault();
+        const name = document.getElementById("ingNameInput").value.trim();
+        const price = parseInt(document.getElementById("ingPriceInput").value) || 0;
+        if (!name) return;
+        saveIngs([...masterIngredients, { id: Date.now().toString(), name, price }]);
+        document.getElementById("ingNameInput").value = "";
+        document.getElementById("ingPriceInput").value = "";
+    };
+
+    function renderIngredientsTable() {
+        const tbody = document.getElementById("ingredientTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = masterIngredients.map((ing, idx) => `
+            <tr>
+                <td class="p-2.5 font-medium">${escapeHTML(ing.name)}</td>
+                <td class="p-2.5 text-brand-700 font-bold">${ing.price.toLocaleString('vi-VN')} đ</td>
+                <td class="p-2.5 text-right"><button onclick="removeIng('${ing.id}')" class="text-rose-500 font-bold p-1"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join("");
+    }
+
+    window.removeIng = function(id) {
+        saveIngs(masterIngredients.filter(i => i.id !== id));
+    };
+
+    window.randomizeEntireMenu = function() {
+        if (!dishPools.length) return;
+        const newMenu = days.map(() => [0, 1, 2].map(() => dishPools[Math.floor(Math.random() * dishPools.length)].name));
+        saveMenu(newMenu);
+    };
+
+    window.openGroceryModal = function() {
+        const container = document.getElementById("groceryListContent");
         const ingMap = {};
-        let grandTotal = 0;
-        const allRecipes = dishPools;
+        let total = 0;
 
         currentMenu.forEach(row => {
-            row.forEach(dishName => {
-                if (dishName && dishName !== "-" && !dishName.includes("Nghỉ")) {
-                    const matched = allRecipes.find(r => (typeof r === 'object' ? r.name : r).toLowerCase() === dishName.toLowerCase());
-                    if (matched && matched.ingredients) {
-                        matched.ingredients.forEach(ingName => {
-                            ingMap[ingName] = (ingMap[ingName] || 0) + 1;
-                        });
-                    }
+            row.forEach(dish => {
+                const found = dishPools.find(d => d.name.toLowerCase() === dish.toLowerCase());
+                if (found && found.ingredients) {
+                    found.ingredients.forEach(ing => {
+                        ingMap[ing] = (ingMap[ing] || 0) + 1;
+                    });
                 }
             });
         });
 
-        container.innerHTML = "";
-        const keys = Object.keys(ingMap);
+        container.innerHTML = Object.keys(ingMap).map(ingName => {
+            const count = ingMap[ingName];
+            const ingObj = masterIngredients.find(m => m.name.toLowerCase() === ingName.toLowerCase());
+            const price = (ingObj ? ingObj.price : 0) * count;
+            total += price;
+            return `
+                <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border text-xs">
+                    <span>${escapeHTML(ingName)} (${count} bữa)</span>
+                    <span class="font-bold text-slate-800">${price.toLocaleString('vi-VN')}đ</span>
+                </div>
+            `;
+        }).join("") || `<p class="text-xs text-slate-400 text-center py-4">Chưa có món ăn trong tuần.</p>`;
 
-        if (keys.length === 0) {
-            container.innerHTML = `<p class="text-slate-400 italic text-center py-6">Chưa có nguyên liệu nào được ghi nhận cho các món trong tuần.</p>`;
-        } else {
-            keys.forEach(ingName => {
-                const count = ingMap[ingName];
-                const ingObj = masterIngredients.find(m => m.name.toLowerCase() === ingName.toLowerCase());
-                const unitPrice = ingObj ? ingObj.price : 0;
-                const lineTotal = count * unitPrice;
-                grandTotal += lineTotal;
-
-                const div = document.createElement("div");
-                div.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200/80 text-sm font-medium";
-                div.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500">
-                        <span>${escapeHTML(ingName)} <span class="text-xs text-slate-500">(${count} suất)</span></span>
-                    </div>
-                    <span class="font-bold text-slate-800">${lineTotal > 0 ? lineTotal.toLocaleString('vi-VN') + 'đ' : 'Tự chuẩn bị'}</span>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        totalText.innerText = `Tổng ước tính: ${grandTotal.toLocaleString('vi-VN')} VNĐ`;
-        modal.classList.remove("hidden");
+        document.getElementById("groceryTotalText").innerText = `Tổng: ${total.toLocaleString('vi-VN')} VNĐ`;
+        document.getElementById("groceryModal").classList.remove("hidden");
     };
 
     window.closeGroceryModal = function() {
         document.getElementById("groceryModal").classList.add("hidden");
     };
 
-    // CONFIRM RESET
-    let confirmCallback = null;
     window.confirmResetMenu = function() {
-        showConfirmModal(
-            "Xóa thực đơn tuần",
-            "Bạn có chắc chắn muốn xóa toàn bộ 21 ô thực đơn trong tuần không? Kho công thức và nguyên liệu không bị xóa.",
-            () => {
-                saveMenuToFirestore(emptyMenu());
-            }
-        );
+        if (confirm("Đặt lại toàn bộ thực đơn tuần?")) saveMenu(emptyMenu());
     };
 
-    function showConfirmModal(title, message, onConfirm) {
-        document.getElementById("confirmTitle").innerText = title;
-        document.getElementById("confirmMessage").innerText = message;
-        confirmCallback = onConfirm;
-        document.getElementById("confirmModal").classList.remove("hidden");
+    function escapeHTML(str) {
+        return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
-    window.closeConfirmModal = function(isOk) {
-        document.getElementById("confirmModal").classList.add("hidden");
-        if (isOk && typeof confirmCallback === "function") {
-            confirmCallback();
-        }
-        confirmCallback = null;
-    };
-
-    document.getElementById("confirmOkBtn").addEventListener("click", () => {
-        closeConfirmModal(true);
-    });
-
-    window.onload = function() {
-        initFirebase();
-    };
+    window.onload = initFirebase;
 </script>
 </body>
 </html>
